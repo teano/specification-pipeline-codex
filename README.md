@@ -37,6 +37,8 @@ policies/
 1. Скачайте или распакуйте этот репозиторий в любую временную папку.
 2. Скопируйте содержимое репозитория в глобальную папку skill:
 
+PowerShell:
+
 ```powershell
 $codexHome = if ($env:CODEX_HOME) { $env:CODEX_HOME } else { Join-Path $env:USERPROFILE ".codex" }
 $skillDir = Join-Path $codexHome "skills\skill-specification-pipeline"
@@ -59,9 +61,13 @@ Copy-Item -Path ".\*" -Destination $skillDir -Recurse -Force -Exclude ".git"
 Так как репозиторий уже является готовой папкой Codex skill, его можно
 клонировать напрямую в глобальные skills:
 
+PowerShell:
+
 ```powershell
 git clone https://github.com/teano/specification-pipeline-codex.git "$env:USERPROFILE\.codex\skills\skill-specification-pipeline"
 ```
+
+cmd.exe:
 
 ```bat
 git clone https://github.com/teano/specification-pipeline-codex.git "%USERPROFILE%\.codex\skills\skill-specification-pipeline"
@@ -69,9 +75,13 @@ git clone https://github.com/teano/specification-pipeline-codex.git "%USERPROFIL
 
 Если у вас задан `CODEX_HOME`, используйте его вместо `%USERPROFILE%\.codex`:
 
+PowerShell:
+
 ```powershell
 git clone https://github.com/teano/specification-pipeline-codex.git "$env:CODEX_HOME\skills\skill-specification-pipeline"
 ```
+
+cmd.exe:
 
 ```bat
 git clone https://github.com/teano/specification-pipeline-codex.git "%CODEX_HOME%\skills\skill-specification-pipeline"
@@ -84,9 +94,13 @@ git clone https://github.com/teano/specification-pipeline-codex.git "%CODEX_HOME
 
 Обновление:
 
+PowerShell:
+
 ```powershell
 git -C "$env:USERPROFILE\.codex\skills\skill-specification-pipeline" pull
 ```
+
+cmd.exe:
 
 ```bat
 git -C "%USERPROFILE%\.codex\skills\skill-specification-pipeline" pull
