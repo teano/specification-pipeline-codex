@@ -63,10 +63,18 @@ Copy-Item -Path ".\*" -Destination $skillDir -Recurse -Force -Exclude ".git"
 git clone https://github.com/teano/specification-pipeline-codex.git "$env:USERPROFILE\.codex\skills\skill-specification-pipeline"
 ```
 
+```bat
+git clone https://github.com/teano/specification-pipeline-codex.git "%USERPROFILE%\.codex\skills\skill-specification-pipeline"
+```
+
 Если у вас задан `CODEX_HOME`, используйте его вместо `%USERPROFILE%\.codex`:
 
 ```powershell
 git clone https://github.com/teano/specification-pipeline-codex.git "$env:CODEX_HOME\skills\skill-specification-pipeline"
+```
+
+```bat
+git clone https://github.com/teano/specification-pipeline-codex.git "%CODEX_HOME%\skills\skill-specification-pipeline"
 ```
 
 Название конечной папки можно сделать короче, например
@@ -78,6 +86,10 @@ git clone https://github.com/teano/specification-pipeline-codex.git "$env:CODEX_
 
 ```powershell
 git -C "$env:USERPROFILE\.codex\skills\skill-specification-pipeline" pull
+```
+
+```bat
+git -C "%USERPROFILE%\.codex\skills\skill-specification-pipeline" pull
 ```
 
 После установки или обновления откройте новый Codex thread или перезапустите
