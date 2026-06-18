@@ -28,6 +28,7 @@ For each pass: run checklist in pass file → aggregate status → emit §6 find
 4. Group by severity: critical → high → medium → risks → missing → duplicate.
 5. Propose targeted fixes per finding in chat only (not generic rewrite; **do not** patch the spec file).
 6. Emit output contract (§5) with pass summary table when any pass is not `pass`.
+7. Run the user language compliance gate from `../../../shared/pass-loading-policy.md` §9 before returning the response.
 
 ## 5. Output Contract (template)
 
@@ -41,11 +42,13 @@ For each pass: run checklist in pass file → aggregate status → emit §6 find
 
 Use required `USER_LANGUAGE`. Do not translate machine IDs or project identifiers (`PASS-*`, `REQ-*`, `F-*`, API names, file/folder names, class/method/variable names, namespaces, config keys, Unity/C# terms, code snippets).
 
+The English labels in this template (`Status`, `Summary`, `Pass summary`, `Findings`, `Recommended fix`, etc.) are semantic field names only. In the actual user-facing response, localize all headings, table headers, field labels, review block names, and proposed-fix labels to `USER_LANGUAGE`; preserve only machine statuses/IDs and project/code identifiers.
+
 `warning` / `blocked` without findings are forbidden.
 
 ## 6. §16 Review skeleton (blocks 1–13)
 
-Use these headings when findings exist. **Omit** a block if there are no items of that type. For short user requests, group by priority but still run all mandatory passes.
+Use these headings when findings exist. **Omit** a block if there are no items of that type. For short user requests, group by priority but still run all mandatory passes. Skeleton headings and labels are semantic placeholders; localize them in user-facing output per `../../../shared/pass-loading-policy.md` §9.
 
 ### Block 1 — Critical problems
 

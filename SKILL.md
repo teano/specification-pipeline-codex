@@ -24,7 +24,8 @@ Own the full specification workflow in Codex:
 3. route the request across assistant, generator, and normalizer modes;
 4. load only the relevant regulation, principles, profiles, and passes;
 5. edit only the resolved specification file when the routed mode allows writes;
-6. never create, edit, delete, move, rename, format, or patch source code or project files.
+6. enforce `USER_LANGUAGE` compliance for every user-facing response;
+7. never create, edit, delete, move, rename, format, or patch source code or project files.
 
 This is the Codex-global variant of the Cursor command + skill package. Do not
 invoke Cursor slash commands. Treat this skill folder as the process root.
@@ -199,6 +200,7 @@ For each request:
    - `modes/spec-generator/SKILL.md`
    - `modes/spec-normalizer/SKILL.md`
 8. Aggregate findings per `shared/pass-loading-policy.md` section 6. Bare block/warning output is forbidden.
+9. Before any user-facing response, run the final language compliance gate from `shared/pass-loading-policy.md` section 9.
 
 ## 8. File I/O And Encoding
 
@@ -224,3 +226,9 @@ not translate structural specification metadata or machine/project identifiers:
 section structure required for navigation, front matter keys, `PASS-*`, `REQ-*`,
 `AC-*`, finding `id`, API names, file/folder names, class/method/variable names,
 namespaces, config keys, Unity/C# terms, and code snippets.
+
+Before every final response, run the language compliance gate in
+`shared/pass-loading-policy.md` section 9. Human-facing headings, table headers,
+finding field labels, review block names, status captions, and next-step labels
+must be written in `USER_LANGUAGE`. English labels in mode templates are semantic
+placeholders, not literal output text.

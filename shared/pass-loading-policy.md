@@ -164,3 +164,23 @@ Mode files reference this §, not duplicate fields.
 Bare status without findings on `warning`/`block` is a contract execution error.
 
 See negative case: ../router/scenario-validation.md Scenario 12; positive — Scenarios 10–11.
+
+---
+
+## 9. User Language Compliance Gate
+
+This gate runs after mode output is assembled and before any user-facing response is sent. It is mandatory for all modes and is independent from `PASS-*` semantic checks.
+
+Checklist:
+
+1. Use the active runtime `USER_LANGUAGE` as the language for all human-facing chat.
+2. Translate all human-facing headings, table headers, finding field labels, status captions, review block names, proposed-fix labels, explanatory labels, and next-step labels into `USER_LANGUAGE`.
+3. Preserve only structural/machine/project identifiers unchanged: `PASS-*`, `REQ-*`, `AC-*`, `F-*`, exact machine enum values when the enum itself is required, API names, file/folder paths, class/method/variable names, namespaces, config keys, Unity/C# terms, and code snippets.
+4. If a machine enum such as `blocked`, `warning`, `draft-ok`, or `Not Ready` is shown, pair it with a localized heading or explanation unless the surrounding field label already makes the meaning clear in `USER_LANGUAGE`.
+5. Treat English labels in output contracts and examples (`Status`, `Summary`, `Pass summary`, `Findings`, `Problem`, `Impact`, `Recommended fix`, `Next step`, etc.) as semantic placeholders, not literal output text.
+6. If any English human-facing label remains outside identifiers, code, paths, or quoted source text, rewrite before responding.
+
+Failure handling:
+
+- Do not emit mixed-language user-facing output when it can be corrected before delivery.
+- A final response with untranslated human-facing labels is a pipeline contract violation.
