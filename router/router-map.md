@@ -23,6 +23,10 @@ It does not duplicate mode methodologies.
 | User intent | Route |
 |---|---|
 | "Add/fix this fragment in the spec" | `spec-assistant` |
+| "Proofread / вычитка / редактура / проверь текст" | `spec-assistant` + review-light profile (**read-only**) |
+| "Proofread and apply fixes / вычитка и внеси правки" | `spec-assistant`: review-light first, then fragment-capture only for explicit write-scoped fixes |
+| "Need to implement / надо реализовать / что будем делать / какое решение принять" inside specification work | `spec-assistant` + fragment-capture on `SPECIFICATION_PATH` only |
+| "Implement/change project code" inside specification work | block project mutation; capture only the spec decision if requested; require a separate non-pipeline implementation request |
 | "Review this spec quickly" | `spec-assistant` + review-light profile |
 | "Review this spec deeply/full pass" | `spec-assistant` + review-full profile |
 | "Generate a complete technical spec from GDD" | `spec-generator` |
@@ -68,9 +72,11 @@ Every route must load:
 2. do not switch to generator if the user asks for a targeted update;
 3. do not switch to normalizer when the user asks only for review;
 4. do not edit `SPECIFICATION_PATH` during review-only routes (`review-light`, `review-full`) unless the user explicitly asks to apply fixes;
-5. do not create, edit, delete, move, rename, format, patch, or otherwise mutate source code or project files;
-6. do not ask the user to choose a mode when the route is obvious;
-7. route only to `spec-assistant`, `spec-generator`, or `spec-normalizer`.
+5. treat proofreading wording (`вычитка`, `proofread`, `редактура`, `проверь текст`, similar) as review-only unless an explicit write/apply verb is present in the same request;
+6. treat implementation wording (`сделать`, `реализовать`, `надо сделать`, `нужно добавить`, `нужно изменить`, `что будем делать`, `какое решение принять`, `implement`, `build`, `add`, `change`, similar) inside specification work as a request to capture future implementation requirements/decisions in `SPECIFICATION_PATH`, not as permission to mutate project files;
+7. do not create, edit, delete, move, rename, format, patch, or otherwise mutate source code or project files;
+8. do not ask the user to choose a mode when the route is obvious;
+9. route only to `spec-assistant`, `spec-generator`, or `spec-normalizer`.
 
 ---
 

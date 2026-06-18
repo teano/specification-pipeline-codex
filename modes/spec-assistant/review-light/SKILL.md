@@ -24,6 +24,7 @@ Do not copy pass checklists into this file.
 2. Run profile pass IDs in order; record status and §6 findings.
 3. On `critical` / `high` density or scope-critical gap → recommend `review-full` with same finding IDs.
 4. Keep output compact per `../../../shared/pass-loading-policy.md` §5 (findings-first, no checklist dump).
+5. For proofreading requests, focus proposed fixes on wording, terminology consistency, ambiguity, and requirement-strength preservation; keep all fixes in chat unless the user explicitly asked to apply them.
 
 ## 5. Conditional Gates
 
@@ -37,11 +38,12 @@ Do not copy pass checklists into this file.
 ## 6. Output Contract
 
 1. **Status:** `ok` | `warning` | `blocked`
-2. **Summary** (1–2 sentences)
-3. **Findings** (by priority, §6 structure)
-4. **Proposed fixes** (chat only — suggested wording or minimal patch description per finding ID; **do not** write to the spec file)
-5. **At most one** blocking question
-6. **Next step** (e.g. offer to apply selected fixes after user approval)
+2. **File changes:** `none (review-only)` unless this run is explicitly followed by a separate write-approved fragment-capture step
+3. **Summary** (1–2 sentences)
+4. **Findings** (by priority, §6 structure)
+5. **Proposed fixes** (chat only — suggested wording or minimal patch description per finding ID; **do not** write to the spec file)
+6. **At most one** blocking question
+7. **Next step** (e.g. offer to apply selected fixes after user approval)
 
 `warning` / `blocked` without findings are forbidden.
 

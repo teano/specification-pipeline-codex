@@ -2,14 +2,15 @@
 name: skill-specification-pipeline
 description: >-
   Global Codex specification workflow for creating, continuing, reviewing,
-  generating, and normalizing markdown technical specifications. Use when the
-  user invokes $skill-specification-pipeline, asks to run command-specification,
-  creates a new specification, continues an existing specification.md file,
-  adds requirement fragments, requests light or full specification review,
-  generates a complete technical spec from source material, or normalizes a spec
-  into implementation-ready markdown. Requires a resolved SPECIFICATION_PATH and
-  detected USER_LANGUAGE before routing. Strict documentation-only write scope:
-  never mutates source code or project files.
+  proofreading, capturing implementation intent as spec text, generating, and
+  normalizing markdown technical specifications. Use when the user invokes
+  $skill-specification-pipeline, asks to run
+  command-specification, creates a new specification, continues an existing
+  specification.md file, adds requirement fragments, requests proofreading, light
+  or full specification review, generates a complete technical spec from source
+  material, or normalizes a spec into implementation-ready markdown. Requires a
+  resolved SPECIFICATION_PATH and detected USER_LANGUAGE before routing. Strict
+  documentation-only write scope: never mutates source code or project files.
 ---
 
 # Skill: Specification Pipeline
@@ -90,6 +91,30 @@ a target path.
 If `--` is present, everything after it is `USER_REQUEST`. If `--` is absent,
 treat the trailing natural-language text as `USER_REQUEST` when unambiguous.
 
+### Proofreading And Edit Intent Terms
+
+Before choosing a write-capable route, classify proofreading wording explicitly.
+
+Rules:
+
+1. Treat `вычитка`, `proofread`, `proofreading`, `редактура`, `проверь текст`, `проверь спецификацию`, `найди проблемы`, and similar wording as review intent by default.
+2. A proofreading-only request routes to `spec-assistant` → `review-light` and is read-only on `SPECIFICATION_PATH`: findings and proposed fixes go to chat only.
+3. Route to a write-capable assistant edit only when the same request contains an explicit write/apply verb such as `внеси правки`, `исправь в файле`, `примени`, `apply`, `patch`, or `rewrite/update this section`.
+4. If the request combines proofreading and write intent, run/plan the review scope first and apply only the explicitly requested fixes. If the write scope is unclear, ask at most one critical clarification question before editing.
+5. Do not infer permission to patch from “сделай вычитку” alone.
+
+### Implementation Intent During Specification Work
+
+When this pipeline is active, implementation wording describes future work for an implementer agent and must be captured in the specification. It is not permission to edit project code or assets.
+
+Rules:
+
+1. Treat wording such as `сделать`, `реализовать`, `надо сделать`, `нужно добавить`, `нужно изменить`, `что будем делать`, `какое решение принять`, `зафиксируй решение`, `implement`, `build`, `add`, or `change` as specification intent when it appears inside a specification request.
+2. Capture that intent in `SPECIFICATION_PATH` as the appropriate artifact: confirmed requirement, implementation constraint, mandatory approach, forbidden formal solution, explicit decision, proposal/assumption, open question, or risk/issue.
+3. Do not create, edit, delete, move, rename, format, patch, or otherwise mutate source code, assets, configs, tests, scenes, generated files, project metadata, or any non-documentation project file during specification work.
+4. If the user explicitly asks to implement code while the specification pipeline is active, stop before project mutation and state that implementation requires a separate non-pipeline request after the spec decision is captured or approved.
+5. Do not infer permission to touch project files from “надо реализовать”, “что будем делать”, or “какое решение принять” alone.
+
 ## 4. Determine User Language
 
 Before routing, determine `USER_LANGUAGE`.
@@ -121,6 +146,8 @@ Hard rules:
 5. If the user requests implementation/code/project changes inside a pipeline request, stop and state that those changes require a separate non-pipeline request.
 6. Another documentation target requires a separate pipeline invocation with its own `SPECIFICATION_PATH`; do not redirect writes mid-run.
 7. Review routes (`review-light`, `review-full`) are read-only on `SPECIFICATION_PATH` until the user explicitly asks to apply fixes.
+8. Proofreading-only wording is a review route, not a fragment-capture route.
+9. Implementation wording inside specification work is a request to update the spec, not to implement code or mutate project files.
 
 ## 6. Package Layout
 

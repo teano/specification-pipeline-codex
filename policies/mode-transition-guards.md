@@ -24,8 +24,10 @@ Before starting a mode, allow at most one critical clarifying question.
 2. normalizer is forbidden for review-only;
 3. **review-only is read-only on `SPECIFICATION_PATH`:** `review-light` and `review-full` must deliver findings and proposed fixes in chat only; forbidden to edit, patch, or rewrite the spec file unless the user explicitly requests application in the same or a follow-up message;
 4. full rewrite is forbidden during fragment capture;
-5. **no code/project mutations:** this pipeline is forbidden to create, edit, delete, move, rename, format, patch, or otherwise mutate source code, assets, configs, tests, generated project files, project metadata, or any non-documentation project file;
-6. on unresolved source conflict, stay in current mode and raise an open question.
+5. **no code/project mutations:** this pipeline is forbidden to create, edit, delete, move, rename, format, patch, or otherwise mutate source code, assets, configs, tests, scenes, generated project files, project metadata, or any non-documentation project file;
+6. **implementation intent is spec intent:** while this pipeline is active, wording such as `сделать`, `реализовать`, `надо сделать`, `нужно добавить`, `нужно изменить`, `что будем делать`, `какое решение принять`, `implement`, `build`, `add`, or `change` describes future implementer work and must be captured in `SPECIFICATION_PATH`; it never grants permission to touch project code/assets/configs/tests/scenes;
+7. explicit requests to implement code inside a specification run must stop before project mutation and require a separate non-pipeline implementation request; the current run may only capture the spec decision/requirement if requested;
+8. on unresolved source conflict, stay in current mode and raise an open question.
 
 ## 5. Depth policy
 

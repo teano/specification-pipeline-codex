@@ -71,7 +71,8 @@ Mode transition rules: `../policies/mode-transition-guards.md`.
 6. Ground every significant system/decomposition item into a concrete project-domain object using explicit project rules, project analysis, or `./core-principles/grounding.md`; the final decomposition tree itself must be grounded, not only annotated.
 7. User-facing pipeline language and specification body content use required `USER_LANGUAGE`; structural specification metadata and machine/project identifiers stay English where required for navigation or implementation (`PASS-*`, `REQ-*`, `AC-*`, finding `id`, API names, paths, files, folders, class/method/variable names, namespaces, config keys, Unity/C# terms, code snippets).
 8. **Review vs edit:** `review-light` and `review-full` must not mutate `SPECIFICATION_PATH` during the review run; proposed fixes stay in the user report until the user asks to apply them (`../policies/mode-transition-guards.md` §4.3).
-9. **Documentation-only writes:** do not create, edit, delete, move, rename, format, patch, or otherwise mutate source code, assets, configs, tests, generated project files, project metadata, or any non-documentation project file.
+9. **Documentation-only writes:** do not create, edit, delete, move, rename, format, patch, or otherwise mutate source code, assets, configs, tests, scenes, generated project files, project metadata, or any non-documentation project file.
+10. **Implementation wording inside spec work:** words such as `сделать`, `реализовать`, `надо сделать`, `нужно добавить`, `нужно изменить`, `что будем делать`, `какое решение принять`, `implement`, `build`, `add`, or `change` describe future implementer work and must be captured in the spec as requirements, decisions, constraints, proposals, risks, or open questions. They never grant permission to mutate project files during pipeline execution.
 
 ---
 
@@ -227,7 +228,8 @@ Normalizer-owned: 20-section TOC, Source Preservation Notes, `REQ-*` / `AC-*` / 
 
 Do not:
 
-- create, edit, delete, move, rename, format, patch, or otherwise mutate source code, assets, configs, tests, generated project files, project metadata, or any non-documentation project file;
+- create, edit, delete, move, rename, format, patch, or otherwise mutate source code, assets, configs, tests, scenes, generated project files, project metadata, or any non-documentation project file;
+- treat implementation wording inside specification work as permission to edit project files; capture it in the spec for future implementers instead;
 - redirect writes to another file during a pipeline run; another documentation target requires a separate invocation with its own `SPECIFICATION_PATH`;
 - invent mechanics, architecture, APIs, or integrations;
 - convert suggestions into requirements without confirmation;
