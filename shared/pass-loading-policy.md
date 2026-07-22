@@ -23,6 +23,7 @@ Atomic pass semantics live only in `./passes/*`.
 | `PASS-008` | `./passes/PASS-008-machine-addressability-traceability.md` |
 | `PASS-009` | `./passes/PASS-009-readiness-verdict-gate.md` |
 | `PASS-010` | `./passes/PASS-010-deduplication-safety.md` |
+| `PASS-011` | `./passes/PASS-011-system-boundary-coherence.md` |
 
 ---
 
@@ -48,7 +49,7 @@ Rules:
 
 | Scenario | Mode | Profiles | Extra passes | Effective set |
 |---|---|---|---|---|
-| Fragment capture | `spec-assistant` | none | `PASS-002`, `PASS-003` | terminology + grounding |
+| Fragment capture | `spec-assistant` | none | `PASS-002`, `PASS-003`, `PASS-011`; conditional `PASS-004` / `PASS-005` for affected slices | terminology + immediate grounding + boundary/coherence + applicable API/ownership/lifecycle/data/config checks |
 | Review-light | `spec-assistant` | `review-light` | none | profile set |
 | Review-full | `spec-assistant` | `review-full` | none | profile set |
 | Generator run | `spec-generator` | `review-light` | `PASS-004`, `PASS-005`, `PASS-007`, `PASS-010` | light + generation safety |
@@ -63,6 +64,7 @@ Profile passes are **mandatory** for the scenario unless a row below applies. Wh
 | Anti-weakening (baseline compare) | `PASS-001` | `./passes/PASS-001-anti-weakening.md` | no prior/source baseline | reason + scope |
 | Terminology / glossary / drift | `PASS-002` | `./passes/PASS-002-terminology-consistency.md` | no domain terminology in scope | reason |
 | Grounding / source conflicts | `PASS-003` | `./passes/PASS-003-source-grounding-and-conflicts.md` | editorial-only, zero semantic change | confirm editorial-only |
+| System boundary / capability ownership / internal coherence | `PASS-011` | `./passes/PASS-011-system-boundary-coherence.md` | editorial-only, zero semantic/ownership/flow/hierarchy change | confirm scope + zero semantic change |
 | **Public API** / operations / commands | `PASS-004` | `./passes/PASS-004-api-lifecycle-ownership.md` | no public API slice | reason + sections reviewed |
 | **Lifecycle** / init / close / save / cleanup / continuation | `PASS-004` | same | no lifecycle side effects | reason + sections reviewed |
 | **Ownership/async** / pooling / subscriptions / tweens | `PASS-004` | same | no ownership/async rules | reason |
@@ -90,6 +92,7 @@ Profile passes are **mandatory** for the scenario unless a row below applies. Wh
 | `PASS-008` | Machine addressability (`spec-normalizer` only) |
 | `PASS-009` | Readiness / completion gate (`spec-normalizer` only) |
 | `PASS-010` | Deduplication safety |
+| `PASS-011` | Hidden boundaries, capability ownership, internal system coherence, existing-owner reuse |
 
 If slice absent: do not fabricate a large section; note: `No explicit <slice> requirements found.`
 
@@ -110,8 +113,8 @@ Goal: **compact output without skipping mandatory checks**.
 
 By mode:
 
-* **assistant / review-light:** concise text; findings-first order required; **read-only** on `SPECIFICATION_PATH` (proposed fixes in chat only).
-* **review-full / normalizer:** expanded diagnostics for blocking areas; blocking IDs required; **review-full** is read-only on the spec file until the user requests application (`../policies/mode-transition-guards.md` §4.3).
+* **assistant / review-light:** an isolated Codex review subagent executes the profile and returns a compact internal bundle; parent renders concise findings-first output; **read-only** on `SPECIFICATION_PATH` (proposed fixes in chat only).
+* **review-full / normalizer:** expanded diagnostics for blocking areas; blocking IDs required; delegated **review-full** is read-only on the spec file until the user requests application (`../policies/mode-transition-guards.md` §4.3). Normalizer remains a local write-capable mode.
 * **generator:** full spec artifact allowed; pass results — compact table + findings.
 
 See also `../policies/mode-transition-guards.md` §5.
@@ -141,6 +144,8 @@ Pass status (`pass` | `pass-with-warning` | `block` | `not applicable`) is not s
 
 Mode files reference this §, not duplicate fields.
 
+For delegated review, the worker aggregates this structure into the internal review bundle; the parent validates and renders it without repeating passes.
+
 ---
 
 ## 7. Hard Rules
@@ -150,6 +155,7 @@ Mode files reference this §, not duplicate fields.
 3. `not applicable` requires a stated reason, not silence;
 4. any pass `block` → final readiness is not `Ready`;
 5. `PASS-008`/`PASS-009` blocks must link to specific finding IDs in mode output.
+6. `PASS-011` is mandatory for every semantic `fragment-capture`, grounded extraction, and system mapping run; `not applicable` is allowed only for a confirmed editorial-only change.
 
 ---
 

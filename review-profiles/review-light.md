@@ -9,9 +9,10 @@ Fast structural and safety review for iterative drafting.
 Run in order:
 
 1. `PASS-003`
-2. `PASS-002`
-3. `PASS-001`
-4. `PASS-006`
+2. `PASS-011`
+3. `PASS-002`
+4. `PASS-001`
+5. `PASS-006`
 
 ## Activation
 

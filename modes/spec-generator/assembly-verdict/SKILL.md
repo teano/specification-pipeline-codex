@@ -10,11 +10,11 @@ All prior stages complete or explicitly `*-blocked` with findings:
 
 | Stage | Skill |
 |---|---|
-| Intake | `./intake-gate/SKILL.md` |
-| Extraction | `./grounded-extraction/SKILL.md` |
-| Mapping | `./system-mapping/SKILL.md` |
-| Flow/data | `./flow-data-modeling/SKILL.md` |
-| Open items | `./open-questions-risks/SKILL.md` |
+| Intake | `../intake-gate/SKILL.md` |
+| Extraction | `../grounded-extraction/SKILL.md` |
+| Mapping | `../system-mapping/SKILL.md` |
+| Flow/data | `../flow-data-modeling/SKILL.md` |
+| Open items | `../open-questions-risks/SKILL.md` |
 
 No silent skip of mandatory passes. Critical conflicts remain ISSUE/OQ — not single-sided requirements.
 

@@ -4,7 +4,7 @@
 
 Aggregate mandatory pass results, readiness dimensions, and completion rules into §20 Readiness Verdict. Prevents premature `Ready` labels when structural or semantic gates still fail.
 
-Source basis: normalizer §3.20 readiness, §7.2 gates; `anti-weakening-readiness/SKILL.md`.
+Source basis: normalizer §3.20 readiness, §7.2 gates; `../../modes/spec-normalizer/anti-weakening-readiness/SKILL.md`.
 
 ## Activation / Not applicable
 

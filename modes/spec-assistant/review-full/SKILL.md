@@ -11,26 +11,40 @@ Deep findings-first review before implementation. Uses profile `../../../review-
 - `../../../review-profiles/review-full.md`
 - `../../../shared/pass-loading-policy.md` §4–§6
 - Pass files under `../../../shared/passes/` (semantics only — do not copy checklists here)
+- `../review-worker/SKILL.md` for parent delegation and bundle validation
+- `REVIEW_EXECUTOR_ROLE`: `parent` (default) or `worker`
 
 ## 3. Mandatory Pass Activation
 
 Load every pass ID listed in `review-full.md` per `../../../shared/pass-loading-policy.md` §4.
 
-Typical full profile adds: `PASS-004`, `PASS-005`, `PASS-006`, `PASS-007`, `PASS-010` after light-profile passes.
+Typical full profile adds: `PASS-004`, `PASS-005`, `PASS-007`, `PASS-010` after light-profile passes. `PASS-006` is already inherited from `review-light` and must not run twice.
 
 For each pass: run checklist in pass file → aggregate status → emit §6 findings for any `pass-with-warning` or `block`.
 
 ## 4. Execution Steps
 
-1. Confirm baseline: prior spec, source excerpt, or user-confirmed fragments for PASS-001/PASS-003.
-2. Run passes in profile order; record `pass` | `pass-with-warning` | `block` | `not applicable` + reason.
-3. Map findings to §16 blocks below (omit empty blocks).
-4. Group by severity: critical → high → medium → risks → missing → duplicate.
-5. Propose targeted fixes per finding in chat only (not generic rewrite; **do not** patch the spec file).
-6. Emit output contract (§5) with pass summary table when any pass is not `pass`.
-7. Run the user language compliance gate from `../../../shared/pass-loading-policy.md` §9 before returning the response.
+### Parent branch (`REVIEW_EXECUTOR_ROLE=parent`)
+
+1. Do not read the complete specification or run passes in the parent context.
+2. Delegate through `../review-worker/SKILL.md` with `REVIEW_PROFILE=review-full`.
+3. Validate the returned review bundle and render it through §5/§6.
+4. If delegation is unavailable, use the explicit local fallback from the review-worker contract.
+
+### Worker branch (`REVIEW_EXECUTOR_ROLE=worker`)
+
+1. Do not delegate again and do not write files.
+2. Confirm baseline: prior spec, source excerpt, or user-confirmed fragments for PASS-001/PASS-003.
+3. Run passes in profile order; record `pass` | `pass-with-warning` | `block` | `not applicable` + reason.
+4. Map findings to §16 blocks below (omit empty blocks).
+5. Order by the §6 severity enum: `critical-risk` → `critical` → `high` → `medium` → `warning`. Within the same severity, review-block categories such as risk, missing item, duplicate, wording, ownership, or testability may be used only as secondary grouping.
+6. Propose targeted fixes per finding for the parent; do not patch the specification.
+7. Run the user language compliance gate from `../../../shared/pass-loading-policy.md` §9.
+8. Return the internal JSON review bundle defined and validated by `../review-worker/SKILL.md`; do not send a user-facing review directly.
 
 ## 5. Output Contract (template)
+
+The worker returns only the internal review bundle. The parent localizes and renders this template:
 
 1. **Status:** `ok` | `warning` | `blocked`
 2. **Summary** (1–3 sentences)
@@ -161,6 +175,7 @@ Question: ...
 - Contract error if any mandatory pass reports `warning`/`block` without §6 findings.
 - If scope exceeds assistant (full normalize, traceability build), route per `../../../policies/mode-transition-guards.md` — do not impersonate normalizer.
 - Multiple critical findings → recommend user decisions before implementation.
+- Worker bundle is stale/invalid → follow `../review-worker/SKILL.md` retry/contract-error rules; do not re-run the review silently in the parent unless delegation is unavailable.
 
 ## 8. When Not Applicable
 

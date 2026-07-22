@@ -8,8 +8,9 @@ description: >-
   command-specification, creates a new specification, continues an existing
   specification.md file, adds requirement fragments, requests proofreading, light
   or full specification review, generates a complete technical spec from source
-  material, or normalizes a spec into implementation-ready markdown. Requires a
-  resolved SPECIFICATION_PATH and detected USER_LANGUAGE before routing. Strict
+  material, or normalizes a spec into implementation-ready markdown. Infers new
+  versus continue from natural language, resolves SPECIFICATION_PATH, and
+  requires USER_LANGUAGE before mode routing. Strict
   documentation-only write scope: never mutates source code or project files.
 ---
 
@@ -26,13 +27,16 @@ Own the full specification workflow in Codex:
 5. edit only the resolved specification file when the routed mode allows writes;
 6. enforce `USER_LANGUAGE` compliance for every user-facing response;
 7. never create, edit, delete, move, rename, format, or patch source code or project files.
+8. isolate read-only review/proofreading so complete-document analysis does not consume the parent conversation context.
 
 This is the Codex-global variant of the Cursor command + skill package. Do not
 invoke Cursor slash commands. Treat this skill folder as the process root.
 
-## 2. Invocation Formats
+## 2. Flexible invocation
 
-Prefer these explicit forms:
+Accept natural-language requests as the default interface. Infer the internal operation and target through `shared/specification-target-resolution.md`.
+
+These explicit forms remain optional shortcuts:
 
 ```text
 $skill-specification-pipeline continue <path-to-specification.md> [-- <work request>]
@@ -43,12 +47,11 @@ Also trigger this skill implicitly when the user asks for specification creation
 spec continuation, requirement capture, spec review, spec generation, or spec
 normalization and the task matches the description.
 
-## 3. Parse The Request Before Routing
+## 3. Resolve the request before routing
 
-Do not run router, pass, profile, or mode work until `SPECIFICATION_PATH` and
-`USER_LANGUAGE` are resolved.
+Apply `shared/specification-target-resolution.md`. Read-only target discovery may run before bindings exist; do not run router, pass, profile, or mode work until `TARGET_OPERATION`, `SPECIFICATION_PATH`, and `USER_LANGUAGE` are resolved.
 
-### Continue Existing Specification
+### Optional explicit continue shortcut
 
 For:
 
@@ -64,7 +67,7 @@ Rules:
 4. Set `SPECIFICATION_DIR` to the parent directory of `SPECIFICATION_PATH`.
 5. Set `SPECIFICATION_TITLE` from the first document `#` heading when present.
 
-### Create New Specification
+### Optional explicit new shortcut
 
 For:
 
@@ -80,14 +83,21 @@ Rules:
 4. If the slug is empty, stop and ask for a valid title.
 5. Set `SPECIFICATION_DIR = <parent-directory>`.
 6. Set `SPECIFICATION_PATH = <parent-directory>/<SPECIFICATION_SLUG>.md`.
-7. If `SPECIFICATION_PATH` already exists, stop and tell the user to use `continue` or choose another title/directory.
+7. If `SPECIFICATION_PATH` already exists, never overwrite silently. Ask whether to regenerate/replace it or continue/complete it unless the user already chose explicitly.
 8. Create the file as UTF-8 without BOM and LF line endings. Starter body: `# <specification-title>` plus the section headings from `shared/specification-document-regulation.md` section 5. Leave sections empty unless the user supplied grounded source material.
 
-### Invalid Or Incomplete Invocation
+### Natural-language resolution
 
-If the request does not provide enough information to resolve a concrete
-specification file, stop and show the two invocation formats above. Do not invent
-a target path.
+Do not reject a request because it lacks `new` / `continue`. Apply these rules:
+
+1. generate + no relevant spec → infer `new`; ask only for a location/title that cannot be inferred safely;
+2. generate + existing relevant spec → ask whether to regenerate from scratch or continue/complete it;
+3. dictation + valid bound/unique relevant spec → infer `continue`;
+4. dictation + no spec → preserve the fragment and ask for a path or permission to create a new spec;
+5. review/normalize + existing target → infer `continue`; without one, ask for the path;
+6. multiple candidates or unclear action → ask one minimal blocking question with concrete candidates/options.
+
+Never invent a weak target, select among multiple plausible specs silently, overwrite an existing specification, or discard dictated content.
 
 If `--` is present, everything after it is `USER_REQUEST`. If `--` is absent,
 treat the trailing natural-language text as `USER_REQUEST` when unambiguous.
@@ -99,8 +109,8 @@ Before choosing a write-capable route, classify proofreading wording explicitly.
 Rules:
 
 1. Treat `вычитка`, `proofread`, `proofreading`, `редактура`, `проверь текст`, `проверь спецификацию`, `найди проблемы`, and similar wording as review intent by default.
-2. A proofreading-only request routes to `spec-assistant` → `review-light` and is read-only on `SPECIFICATION_PATH`: findings and proposed fixes go to chat only.
-3. Route to a write-capable assistant edit only when the same request contains an explicit write/apply verb such as `внеси правки`, `исправь в файле`, `примени`, `apply`, `patch`, or `rewrite/update this section`.
+2. A proofreading-only request routes to `spec-assistant` → `review-light` by default and is read-only on `SPECIFICATION_PATH`. Explicit depth wording such as `полная вычитка`, `глубокая вычитка`, `комплексная проверка`, `full/deep/comprehensive review`, or readiness/pre-implementation audit takes precedence and routes to `review-full`.
+3. Route to a write-capable assistant edit only when the same request contains an explicit write/apply verb such as `внеси правки`, `исправь в файле`, `примени`, `apply`, `patch`, or `rewrite/update this section`. This adds a later write step and does not lower the selected review depth.
 4. If the request combines proofreading and write intent, run/plan the review scope first and apply only the explicitly requested fixes. If the write scope is unclear, ask at most one critical clarification question before editing.
 5. Do not infer permission to patch from “сделай вычитку” alone.
 
@@ -115,6 +125,8 @@ Rules:
 3. Do not create, edit, delete, move, rename, format, patch, or otherwise mutate source code, assets, configs, tests, scenes, generated files, project metadata, or any non-documentation project file during specification work.
 4. If the user explicitly asks to implement code while the specification pipeline is active, stop before project mutation and state that implementation requires a separate non-pipeline request after the spec decision is captured or approved.
 5. Do not infer permission to touch project files from “надо реализовать”, “что будем делать”, or “какое решение принять” alone.
+6. Ground every named implementation entity during fragment capture. For providers, models, configs, controllers, facades, repositories, adapters, and similar roles, inspect project rules and analogues to resolve the project-shaped name, interface/contract, placement, creation/composition, registration/lifetime, dependencies, and ownership before normative insertion. If critical evidence is missing or contradictory, add a focused `OQ-xxx` and omit the abstract entity.
+7. Run `PASS-011` before and after each semantic fragment to detect hidden system boundaries, incoherent responsibilities, duplicate capability owners, and existing project systems that must be reused.
 
 ## 4. Determine User Language
 
@@ -132,15 +144,17 @@ Rules:
 
 | Binding | Requirement |
 |---|---|
-| `SPECIFICATION_PATH` | resolved readable `.md` file; newly created only via `new` |
-| `SPECIFICATION_DIR` | parent directory of `SPECIFICATION_PATH`; may be created only by `new` |
+| `TARGET_OPERATION` | inferred or explicit `new` / `continue` |
+| `TARGET_RESOLUTION_SOURCE` | source defined by `shared/specification-target-resolution.md` |
+| `SPECIFICATION_PATH` | resolved readable `.md` file, or confirmed non-existing target when `TARGET_OPERATION=new` |
+| `SPECIFICATION_DIR` | parent directory of `SPECIFICATION_PATH`; may be created only for inferred/explicit `new` |
 | `SPECIFICATION_TITLE` | first `#` title from the file, else the `new` title |
 | `USER_REQUEST` | text after `--` or trailing free-text work intent |
 | `USER_LANGUAGE` | detected user language |
 
 Hard rules:
 
-1. If `SPECIFICATION_PATH` is missing, not a `.md` file, or unreadable, stop.
+1. If `SPECIFICATION_PATH` is initially missing, run target resolution. If it remains ambiguous/unavailable, ask one minimal blocking question and do not run modes.
 2. If `USER_LANGUAGE` is missing or ambiguous, stop and ask for the language.
 3. Filesystem writes are limited to creating `SPECIFICATION_DIR` during `new` and creating/editing `SPECIFICATION_PATH` when the routed mode allows writes.
 4. Do not create, edit, delete, move, rename, format, patch, or otherwise mutate source code, assets, configs, tests, generated project files, project metadata, or any non-documentation project file.
@@ -149,6 +163,12 @@ Hard rules:
 7. Review routes (`review-light`, `review-full`) are read-only on `SPECIFICATION_PATH` until the user explicitly asks to apply fixes.
 8. Proofreading-only wording is a review route, not a fragment-capture route.
 9. Implementation wording inside specification work is a request to update the spec, not to implement code or mutate project files.
+10. In the parent executor, delegate `review-light`, `review-full`, proofreading, and post-fix verification through `modes/spec-assistant/review-worker/SKILL.md` to a fresh Codex subagent with clean context. An executor marked `REVIEW_EXECUTOR_ROLE=worker` executes locally and never delegates again.
+11. On explicit review routes, the parent must not read the complete specification, core principles, profiles, or pass files before delegation. It may verify readability, compute exact-byte SHA-256, and pass concise bindings/paths only.
+12. The review worker is strictly read-only and returns a compact validated bundle. The parent remains the only writer after explicit user approval of findings.
+13. Never apply findings when the current SHA-256 differs from the reviewed revision. Re-review first. If subagent execution is unavailable, use the declared local fallback and disclose its parent-context cost.
+14. For generation, infer `new` when no relevant spec exists. If a relevant spec exists and rewrite versus continuation is unstated, ask before writing; never overwrite silently.
+15. For dictation, reuse the current conversation-bound or unique relevant spec. If none exists, preserve the fragment and ask for a path or new-spec confirmation; do not require repetition.
 
 ## 6. Package Layout
 
@@ -161,6 +181,7 @@ skill-specification-pipeline/
   router/scenario-validation.md
   shared/
     specification-document-regulation.md
+    specification-target-resolution.md
     source-priority-policy.md
     pass-loading-policy.md
     core-principles/
@@ -170,7 +191,9 @@ skill-specification-pipeline/
     passes/
   review-profiles/
   modes/
-    spec-assistant/...
+    spec-assistant/
+      review-worker/SKILL.md
+      ...
     spec-generator/...
     spec-normalizer/...
   policies/mode-transition-guards.md
@@ -189,17 +212,17 @@ Rules:
 
 For each request:
 
-1. Resolve or create `SPECIFICATION_PATH`; detect `USER_LANGUAGE`; read the specification file for context.
-2. Classify intent via `router/router-map.md` using `USER_REQUEST` and the specification file.
+1. Apply `shared/specification-target-resolution.md`: infer `TARGET_OPERATION`, discover/reuse the target, and ask at most one blocking question only when necessary. Then resolve/create `SPECIFICATION_PATH` and detect `USER_LANGUAGE`. For explicit review, verify readability and compute SHA-256 without reading the complete file in the parent.
+2. Classify intent via `router/router-map.md` using `USER_REQUEST`. Route explicit review intent before full-file loading.
 3. Apply `policies/mode-transition-guards.md`.
-4. Apply `shared/source-priority-policy.md`.
-5. Always load `shared/specification-document-regulation.md` and core principles: `system-thinking.md`, `decomposition.md`, `grounding.md`.
-6. Load pass/profile scope via `shared/pass-loading-policy.md`.
+4. Apply `shared/source-priority-policy.md` in the selected executor. For delegated review, the parent passes only source paths and concise decision delta; the worker loads the policy.
+5. For local work, load regulation and all core principles. For delegated review, the parent loads only `modes/spec-assistant/review-worker/SKILL.md`; the worker loads regulation, principles, profile, and passes.
+6. Load pass/profile scope via `shared/pass-loading-policy.md` in the selected executor.
 7. Run the selected mode wrapper:
    - `modes/spec-assistant/SKILL.md`
    - `modes/spec-generator/SKILL.md`
    - `modes/spec-normalizer/SKILL.md`
-8. Aggregate findings per `shared/pass-loading-policy.md` section 6. Bare block/warning output is forbidden.
+8. Delegated review returns a validated compact bundle; the parent must not repeat pass execution. Aggregate findings per `shared/pass-loading-policy.md` section 6. Bare block/warning output is forbidden.
 9. Before any user-facing response, run the final language compliance gate from `shared/pass-loading-policy.md` section 9.
 
 ## 8. File I/O And Encoding

@@ -73,6 +73,14 @@ Add a distinct entity only if it protects at least one boundary:
 
 If none apply, keep behavior inside an existing entity — do not add classes for completeness.
 
+### 3.1 Hidden boundaries and coherence
+
+Do not treat a sentence as one system merely because it names one grammatical subject. An action/object may reveal a capability owned by another internal or external system. Before assigning behavior, map the action to its natural domain capability and search the project for an existing owner (`PASS-011`).
+
+Keep a system/entity cohesive: its responsibilities must support one domain purpose and compatible change driver, authoritative state/invariants, lifecycle, and boundary. Operations that happen sequentially, appear on one screen, or are called by one module do not automatically belong to that module.
+
+When a statement spans multiple natural owners, represent each internal system in the correct sibling branch or the existing external owner under the L0 outside boundary, then document their interaction. Do not create a duplicate system when the project already provides the capability. If the natural/project owner cannot be determined, record `OQ-xxx` instead of preserving the wrong owner.
+
 ---
 
 ## 4. Deep decomposition triggers
@@ -164,4 +172,4 @@ Prefer explicit **responsibility** over fixed class names when project conventio
 
 ## 10. Handoff to passes and normalizer
 
-Weak decomposition → `PASS-004`, `PASS-006`, `PASS-003`. Normalizer maps stable entities to `REQ-*`. Deduplication → `PASS-010`. Verify via pass IDs only — no checklist duplication here.
+Weak decomposition → `PASS-011`, `PASS-004`, `PASS-006`, `PASS-003`. Normalizer maps stable entities to `REQ-*`. Deduplication → `PASS-010`. Verify via pass IDs only — no checklist duplication here.

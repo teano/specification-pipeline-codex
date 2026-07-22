@@ -12,10 +12,10 @@ Includes all pass IDs from `./review-light.md`.
 
 Run after base profile:
 
-5. `PASS-004`
-6. `PASS-005`
-7. `PASS-007`
-8. `PASS-010`
+6. `PASS-004`
+7. `PASS-005`
+8. `PASS-007`
+9. `PASS-010`
 
 ## Activation
 

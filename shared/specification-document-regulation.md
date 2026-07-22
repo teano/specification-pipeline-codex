@@ -10,7 +10,7 @@ This regulation is the **top-level contract** for specification documents across
 | `spec-generator` | first full draft from GDD/brief |
 | `spec-normalizer` | implementation-ready normalized markdown |
 
-**This file does not duplicate atomic pass checklists.** Verification details live in `./passes/PASS-*.md` and activation in `./pass-loading-policy.md`. File I/O: active repo `AGENTS.md` and encoding guidance; fallback UTF-8 without BOM and LF line endings for markdown.
+**This file does not duplicate atomic pass checklists.** Verification details live in `./passes/PASS-*.md` and activation in `./pass-loading-policy.md`. File I/O follows the pipeline root `SKILL.md` §8 plus active `AGENTS.md` and repository rules.
 
 Methodology depth: `./core-principles/system-thinking.md`, `./core-principles/decomposition.md`, `./core-principles/grounding.md`.
 
@@ -223,7 +223,7 @@ Findings format: `./pass-loading-policy.md` section 6.
 
 ## 11. Normalized document expectations (pointer)
 
-Normalizer-owned: 20-section TOC, Source Preservation Notes, `REQ-*` / `AC-*` / `TERM-*` registry, traceability matrix, readiness verdict. See `../modes/spec-normalizer/pipeline/SKILL.md`, `addressability-traceability/SKILL.md`. Gates: `PASS-008`, `PASS-009`.
+Normalizer-owned: 20-section TOC, Source Preservation Notes, `REQ-*` / `AC-*` / `TERM-*` registry, traceability matrix, readiness verdict. See `../modes/spec-normalizer/pipeline/SKILL.md`, `../modes/spec-normalizer/addressability-traceability/SKILL.md`. Gates: `PASS-008`, `PASS-009`.
 
 ---
 
@@ -249,6 +249,6 @@ Do not:
 
 ## 13. Source priority and pass pointers
 
-Source conflicts: `../source-priority-policy.md` → findings via `PASS-003`. Check steps: `./passes/PASS-*.md`. Activation: `./pass-loading-policy.md`. Review order: `../review-profiles/*.md`. Routing: `../router/router-map.md`.
+Source conflicts: `./source-priority-policy.md` → findings via `PASS-003`. Check steps: `./passes/PASS-*.md`. Activation: `./pass-loading-policy.md`. Review order: `../review-profiles/*.md`. Routing: `../router/router-map.md`.
 
 **DRY rule:** mode SKILL files orchestrate; they do not copy pass checklist text.

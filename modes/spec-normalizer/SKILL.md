@@ -37,6 +37,8 @@ Per `../../shared/pass-loading-policy.md` normalizer scenario:
 * profile `../../review-profiles/review-full.md`;
 * extra passes `PASS-008`, `PASS-009`, `PASS-010`.
 
+`review-full` inherits mandatory `PASS-011`; unresolved system-boundary/coherence blocks participate in the normalizer aggregate and forbid `Ready`.
+
 Pass check semantics live only in `../../shared/passes/*`. Stage files add orchestration and artifact contracts, not duplicated checklists.
 
 ## 4. Output Artifact Contract
@@ -59,6 +61,7 @@ Compact output is allowed; skipping mandatory sections or internal gates is not.
 3. any `PASS-008` or `PASS-009` block → verdict `Blocked` / `Not Ready`;
 4. `Ready` requires confirmed machine addressability + traceability + explicit readiness dimensions;
 5. `PASS-010` block or critical deduplication loss → not `Ready`.
+6. `PASS-011` block or unresolved incoherent/duplicate capability ownership → not `Ready`.
 
 ## 6. Output Contract
 

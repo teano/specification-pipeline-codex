@@ -31,6 +31,7 @@ Before any generation or rebuild:
 - Describe mechanics, input, UI/VFX, data, configs, and integrations **inside grounded project/domain owners**, not as detached topical chapters or abstract system categories.
 - Ground each owner as a concrete project-domain object using explicit project rules, project analysis, or `grounding.md`; abstract "system" wording is only internal analysis and must not remain as the final decomposition hierarchy.
 - Separate gameplay logic from visual/UI/VFX, config from runtime state, orchestration from domain rules, integration boundaries from internal logic.
+- Run `PASS-011` during grounded extraction and again after system mapping. Do not treat a requirement's grammatical subject as the owner until capability ownership, system cohesion, existing project owners, and hierarchy impact are checked.
 - Add entities only when decomposition principles require them; do not mechanically copy project-structure patterns into the spec.
 - Keep terminology limited to domain vocabulary; Unity/C# API names and confirmed type/method/property signatures belong in decomposition or implementation contract and must be reused exactly, not duplicated as glossary terms.
 - Post-generation edits/review → `../spec-assistant/`; normalize-only → `../spec-normalizer/`.
@@ -66,7 +67,7 @@ Run stages in order; do not skip a stage without an explicit blocked status and 
 |---|---|---|
 | 1 | Intake gate | `./intake-gate/SKILL.md` |
 | 2 | Grounded extraction | `./grounded-extraction/SKILL.md` |
-| 3 | System mapping | `./system-mapping/SKILL.md` |
+| 3 | System mapping + final boundary/coherence verification | `./system-mapping/SKILL.md` |
 | 4 | Flow and data modeling | `./flow-data-modeling/SKILL.md` |
 | 5 | Open questions and risks | `./open-questions-risks/SKILL.md` |
 | 6 | Assembly and verdict | `./assembly-verdict/SKILL.md` |
@@ -81,6 +82,7 @@ Per `../../shared/pass-loading-policy.md` generator scenario:
 
 - Profile: `../../review-profiles/review-light.md` (pass IDs only in profile file).
 - Extra passes: `PASS-004`, `PASS-005`, `PASS-007`, `PASS-010`.
+- `PASS-011` comes from `review-light` and is also executed at both generator boundary checkpoints defined in stages 2–3.
 
 Run passes per profile order; aggregate findings per `../../shared/pass-loading-policy.md` §6. Do **not** copy pass checklists into this file.
 

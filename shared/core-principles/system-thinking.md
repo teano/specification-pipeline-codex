@@ -33,6 +33,7 @@ For each normative fragment, determine internally:
 |---|---|
 | Placement | Which canonical section and subsystem does this refine? |
 | Entity | New entity, or responsibility change on an existing one? |
+| Capability owner | Does the grammatical subject naturally own this action, or does the verb/object reveal another existing or required system boundary? |
 | Data | Does this add/change models, config, or persistence? |
 | Flow | Which user/core/behaviour flow step is affected? |
 | Time | Triggers, lifecycle moment, async completion? |
@@ -40,6 +41,7 @@ For each normative fragment, determine internally:
 | Terminology | New or changed term → glossary impact? |
 | Risk | Shortcut implementation or formal-but-wrong execution? |
 | Consistency | Contradiction or weakening vs source/prior spec? |
+| Coherence | Do the entity's responsibilities share one domain purpose, change driver, state/invariants, and lifecycle? |
 
 You do not need to rewrite the whole document each time; you must know where the fragment belongs.
 
@@ -66,6 +68,7 @@ Affects:
 3. **Orchestration** (flow, scene, session) is separated from **domain rules** (scoring, validation).
 4. Integration boundaries are explicit: what crosses modules, what stays internal.
 5. Unresolved ownership becomes an **`OQ-xxx` entry in Open Questions** (`## 11` draft / `## 18` normalized), not an invented class and not a per-entity “open questions” paragraph in decomposition.
+6. The grammatical subject of a requirement is not automatically the action owner. Map each action to its domain capability and check for an existing project owner before assigning or creating a system (`PASS-011`).
 
 ---
 

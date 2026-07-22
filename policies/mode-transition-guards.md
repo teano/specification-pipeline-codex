@@ -2,7 +2,7 @@
 
 ## 1. Default route
 
-If the artifact is unclear, use `spec-assistant`.
+Apply `../shared/specification-target-resolution.md` before mode selection. If the action remains unclear after target resolution, use `spec-assistant` only after asking the one blocking question needed to distinguish specification work from implementation or another artifact.
 
 ## 2. Clarification limit
 
@@ -28,6 +28,13 @@ Before starting a mode, allow at most one critical clarifying question.
 6. **implementation intent is spec intent:** while this pipeline is active, wording such as `сделать`, `реализовать`, `надо сделать`, `нужно добавить`, `нужно изменить`, `что будем делать`, `какое решение принять`, `implement`, `build`, `add`, or `change` describes future implementer work and must be captured in `SPECIFICATION_PATH`; it never grants permission to touch project code/assets/configs/tests/scenes;
 7. explicit requests to implement code inside a specification run must stop before project mutation and require a separate non-pipeline implementation request; the current run may only capture the spec decision/requirement if requested;
 8. on unresolved source conflict, stay in current mode and raise an open question.
+9. **review delegation:** explicit `review-light`, `review-full`, and proofreading routes must delegate to a fresh isolated Codex review subagent before the parent reads the complete specification whenever the multi-agent mechanism is available;
+10. **review worker is read-only:** the worker may not mutate any file; only the parent may apply user-approved fixes through `fragment-capture`;
+11. **revision guard:** finding application is forbidden when the current exact-byte SHA-256 differs from the reviewed bundle; re-review the current file first;
+12. **honest fallback:** when subagent delegation is unavailable, run the same review locally under the read-only contract and disclose that the parent-context fallback was used.
+13. **natural-language operation inference:** do not require literal `new` / `continue`; bind the inferred operation before entering a mode;
+14. **existing-generation collision:** a generic generation request against an existing relevant spec must stop for regenerate-versus-continue choice unless the user already stated it;
+15. **dictation continuity:** reuse a valid conversation-bound/unique spec; when absent, keep the dictated fragment pending and ask for a path or new-spec confirmation.
 
 ## 5. Depth policy
 
@@ -41,6 +48,7 @@ Activation matrix: `../shared/pass-loading-policy.md` §4.
 2. the mode layer must aggregate findings and show them to the user (status-only is forbidden);
 3. `block` without findings is a contract error and forces outcome `blocked`;
 4. when switching modes, unresolved findings keep the same `id`.
+5. delegated findings must come from a validated review bundle; the parent must not rerun passes after accepting the bundle.
 
 ## 7. Normalizer Hard Gate
 

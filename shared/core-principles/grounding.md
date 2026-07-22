@@ -8,6 +8,8 @@ The specification must be useful for an implementer who does not reason in syste
 
 Grounding must change the document structure, not only individual entity cards. If the decomposition tree remains an abstract systems-thinking tree and only adds `Grounded as:` fields, grounding has failed.
 
+Grounding is also mandatory during incremental dictation and fragment capture. When the user introduces an implementation entity such as a model, config, provider, controller, facade, repository, adapter, service, factory, view, or event/command contract, ground it **before** writing the fragment. Do not first record an abstract entity and defer its project name, interface, creation, registration, ownership, or lifecycle to a later generation/normalization pass.
+
 ---
 
 ## 2. Grounding source order
@@ -67,6 +69,34 @@ Before using any framework, platform, or repository convention, verify the curre
 - project-owned baseline: prefer the authored application/module area and rules named by the project, not vendor, generated, plugin, sample, or legacy trees.
 
 Do not encode a specific repository's folder names, module names, framework objects, or internal architecture into this reusable grounding artifact. If a project convention is not discovered or supplied for the current target, use §8 instead of carrying assumptions from another project.
+
+### 4.1 Incremental grounding gate
+
+For every dictated or locally added implementation entity, complete this gate before editing the canonical entity/contract text:
+
+1. Classify the requested domain responsibility and candidate project entity kind from the user's words and the affected specification context.
+2. Decompose the statement into actions/capabilities. Do not assume the grammatical subject owns every verb; apply `PASS-011` to identify hidden boundaries and natural owners.
+3. Inspect repository rules and architecture docs, then search project-owned source for an existing capability owner and the nearest same-role/same-feature analogues. Inspect their names, namespaces/paths, interfaces, consumers, composition roots, registrations/factories, dependency direction, lifetime, cleanup, and data/config/persistence patterns as applicable.
+4. Reuse or extend an existing grounded capability owner. Do not create a parallel provider/service/controller/facade/system that duplicates the project boundary.
+5. Prefer evidence from the target feature or adjacent authored modules. Do not use vendor, generated, sample, test-fixture, or legacy code as the default pattern.
+6. When the evidence establishes a coherent local pattern, write the concrete project-shaped contract in the same fragment: exact name, entity kind, placement, interface/public operations when the project pattern requires them, creator/composition root, registration and lifetime, dependencies, ownership boundaries, and relevant lifecycle/data/config behavior.
+7. Derive a new name or signature from local conventions only when the convention is unambiguous for the same role. Do not add operations, fields, dependencies, or lifecycle behavior merely to make the contract look complete.
+8. When any implementation-critical dimension cannot be determined from user statements, the specification, project rules, or analogous project entities, do not write an abstract normative entity. Add a focused `OQ-xxx` only in the final Open Questions section for the missing correspondence.
+
+The gate is satisfied only when an implementer can identify what artifact to create or extend and how it participates in project composition, or when the unresolved decision is explicitly represented by `OQ-xxx` instead of an abstract placeholder.
+
+### 4.2 Entity-specific grounding minimum
+
+| Dictated entity | Minimum evidence-backed contract before writing |
+|---|---|
+| Model / DTO / state | Project-shaped name and placement; fields from confirmed behavior; mutability; authoritative owner; runtime/config/persisted role; creation and reset/update rules |
+| Config | Config type/artifact and location; source/loading path; serving owner; consumers; validation/default/update rules only when confirmed |
+| Provider / repository / adapter | Project-shaped name; interface or concrete contract according to local convention; operations and payloads; data/state source; creator/registration; lifetime; caching/error/cleanup behavior when applicable |
+| Controller / orchestrator / workflow | Commands/triggers; orchestration boundary; state read/write owners; collaborators; creation/registration; lifetime and teardown |
+| Facade / public boundary | Consumer-facing interface/operations; inputs/outputs/errors; hidden collaborators; composition/registration; lifetime; forbidden dependency direction |
+| View / UI component | Input routing and display contract; state source; visual lifecycle owner; creation/wiring; cleanup; explicit prohibition on owning domain truth unless project evidence says otherwise |
+
+If a row is relevant and a required dimension is unknown, use the clarification gate instead of filling it with generic architecture.
 
 ---
 
@@ -157,6 +187,8 @@ Use these only after §4 confirms that the target project has matching conventio
 Use this when the project is new, lacks rules, has no clear structure, or does not match any detected framework/platform convention.
 
 The fallback is **not** permission to invent a plausible architecture. It is a constrained way to keep the spec implementation-useful while explicitly marking every missing project correspondence.
+
+For incremental dictation / `fragment-capture`, this fallback is diagnostic only: do not commit a neutral role as the completed entity when its concrete project artifact, name, contract, creation, or registration remains unresolved. Record the missing decision as `OQ-xxx` in the final Open Questions section and leave the abstract entity out of normative decomposition/contract text. Neutral fallback entities remain allowed for explicitly partial full-document generator drafts where unresolved grounding is visible.
 
 ### 8.1 Source basis under fallback
 
@@ -341,6 +373,7 @@ Apply grounding whenever the pipeline:
 - writes data/config/persistence requirements;
 - normalizes requirements into implementation-ready contracts;
 - reviews a spec for weak ownership or implementation ambiguity.
+- captures dictated implementation entities or signatures, including models, configs, providers, controllers, facades, repositories, adapters, services, factories, views, and event/command contracts.
 
 Grounding belongs in canonical spec sections, not in a separate methodology essay or parallel placement catalog. A short entity line such as `Grounded as: UI component in <feature module>` is acceptable when it prevents ambiguity.
 

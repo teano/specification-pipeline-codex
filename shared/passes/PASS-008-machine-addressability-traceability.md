@@ -4,7 +4,7 @@
 
 Enforce stable element IDs (REQ-*, AC-*, TERM-*), registry gate §6, traceability matrix §19, and orphan checks. **Hard gate for `spec-normalizer` only** — no `Ready` without this pass `pass`.
 
-Source basis: normalizer §10 addressing, registry, completion gate -1.5; `addressability-traceability/SKILL.md`.
+Source basis: normalizer §10 addressing, registry, completion gate -1.5; `../../modes/spec-normalizer/addressability-traceability/SKILL.md`.
 
 ## Activation / Not applicable
 

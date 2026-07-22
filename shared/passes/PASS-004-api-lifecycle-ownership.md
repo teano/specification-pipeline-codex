@@ -75,6 +75,7 @@ Report pass status: `pass` | `pass-with-warning` | `block` | `not applicable`.
 
 ## Integration with other passes
 
+- **PASS-011:** discover the correct system boundary and primary capability owner before validating API/lifecycle details here.
 - **PASS-006:** derive edge cases from API/lifecycle gaps listed here.
 - **PASS-001:** dropping failure branches is weakening.
 - **PASS-005:** persistence triggers often lifecycle-bound — cross-check save/load owners.

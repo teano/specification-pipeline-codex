@@ -34,6 +34,7 @@ description: >-
 |---|---|---|
 | Router | `./router/SKILL.md` | every assistant turn (select scope) |
 | Fragment capture | `./fragment-capture/SKILL.md` | local add/change |
+| Review worker | `./review-worker/SKILL.md` | delegate review-light/full to a clean-context Codex subagent, validate bundle/revision, hand off approved fixes |
 | Review light | `./review-light/SKILL.md` | fast review |
 | Review full | `./review-full/SKILL.md` | deep review (§16 blocks) |
 
@@ -41,9 +42,10 @@ description: >-
 
 1. Select submode via `./router/SKILL.md`.
 2. Load pass/profile scope from `../../shared/pass-loading-policy.md` §4.
-3. Run the selected submode; execute passes via `../../shared/passes/PASS-*.md` only.
-4. Aggregate findings per `../../shared/pass-loading-policy.md` §6.
-5. Return response per submode output contract (see §6). For **review** submodes: **read-only** on `SPECIFICATION_PATH` unless the user explicitly asks to apply fixes.
+3. For `fragment-capture`, execute locally. For `review-light` / `review-full`, delegate through `./review-worker/SKILL.md`; the parent must not preload the complete specification while subagent delegation is available.
+4. The review worker executes passes via `../../shared/passes/PASS-*.md` only and returns a validated compact bundle. The parent does not repeat the passes.
+5. Aggregate/render findings per `../../shared/pass-loading-policy.md` §6.
+6. Return response per submode output contract (see §6). For **review** submodes: **read-only** on `SPECIFICATION_PATH` unless the user explicitly asks to apply fixes.
 
 ## 5. Conditional Gates
 
@@ -53,6 +55,7 @@ description: >-
 | Normalize-only request | `spec-normalizer` |
 | Mandatory pass `block` | `blocked` + findings |
 | Pass `not applicable` | stated reason in report |
+| Review subagent unavailable | local read-only fallback; disclose fallback; never pretend delegation occurred |
 
 ## 6. Output Contract
 
@@ -63,6 +66,8 @@ description: >-
 |---|---|---|
 | `fragment-capture` | write (local change per fragment protocol) | status → summary → what changed → follow-ups |
 | `review-light`, `review-full` | **read-only** until user approves application | status → summary → findings → **proposed fixes (chat only)** → next step |
+
+Review results are produced by the isolated Codex review worker as an internal JSON bundle and rendered by the parent. The bundle itself is not user-facing unless requested.
 
 `warning` / `blocked` without findings are forbidden.
 

@@ -88,7 +88,7 @@ Document outcomes in flow steps and decomposition — pass semantics live only i
 
 ## 7. Stage gate
 
-Do not proceed to `./open-questions-risks/SKILL.md` if:
+Do not proceed to `../open-questions-risks/SKILL.md` if:
 
 - Mandatory `PASS-004` or `PASS-005` is `block` without findings and remediation plan, or
 - Major flows lack an owning system.

@@ -4,7 +4,7 @@
 
 Extract **normative, owner-attributed requirements** from source design materials — not a GDD paraphrase or topical outline (`Input`, `Score`, `UI` chapters detached from grounded project/domain owners).
 
-Mandatory pass: `PASS-003` — `../../../shared/passes/PASS-003-source-grounding-and-conflicts.md`.
+Mandatory passes: `PASS-003` and `PASS-011` — source grounding/conflicts plus hidden system boundary and coherence analysis.
 
 ---
 
@@ -36,6 +36,7 @@ Complete **before** writing spec prose. Results inform extraction; emit only if 
 | 2 | Player/user goal? |
 | 3 | Core loop to implement? |
 | 4 | Which systems naturally follow from GDD? |
+| 4a | Which actions/capabilities belong to a different natural or existing project owner than the grammatical subject that states them? |
 | 5 | Which entities exist inside those systems? |
 | 5a | How are those systems/entities grounded in the current project context or `grounding.md` fallback? |
 | 6 | Entity and feature-level states? |
@@ -52,6 +53,7 @@ Complete **before** writing spec prose. Results inform extraction; emit only if 
 | 17 | Where are Open Questions required? |
 | 18 | Where could a coding agent satisfy wording but implement wrongly? |
 | 19 | Subsystems to split (change, variability, ownership, lifecycle, boundary, God Object risk)? |
+| 19a | Does every candidate system have one coherent domain purpose, compatible responsibilities, state/invariants, lifecycle, and reason to change? |
 | 20 | Mandatory subsystems vs implementation details? |
 | 21 | Where is shallow decomposition insufficient? |
 | 22 | GDD domain terms, hidden synonyms, duplicates per regulation terminology rules; which detected names are code/API or decomposition signatures and therefore excluded from glossary? |
@@ -118,9 +120,10 @@ Never hide **Assumption** inside requirement wording.
 
 1. Read all source materials; apply `../../../shared/source-priority-policy.md`.
 2. Run the mandatory internal analysis.
-3. Extract grounded requirements with owners and project-domain entity kinds; run `PASS-003`.
-4. Record conflicts as findings, not silent merges.
-5. Emit extraction artifact (internal or user-visible per request): requirement list + grounding refs + pass status.
+3. Decompose source statements into actions/capabilities and run `PASS-011` to expose hidden system boundaries, incoherent responsibility groups, and existing project owners before writing requirement prose.
+4. Extract grounded requirements with coherent primary owners and project-domain entity kinds; run `PASS-003`.
+5. Record conflicts, unresolved owners, and boundary gaps as findings/OQs, not silent merges or guessed systems.
+6. Emit extraction artifact (internal or user-visible per request): requirement list + grounding refs + boundary/coherence result + pass status.
 
 ---
 
@@ -130,6 +133,8 @@ Never hide **Assumption** inside requirement wording.
 2. Conflicts between sources → findings, not merged wording.
 3. Missing sections → open questions or assumptions, not invented fill.
 4. No undifferentiated GDD retelling.
+5. No grammatical subject treated as owner without capability ownership analysis.
+6. No candidate system with incompatible responsibilities or duplicate existing project capability ownership.
 
 ---
 
@@ -148,8 +153,9 @@ Never hide **Assumption** inside requirement wording.
 |---|---|
 | Stage status | `extraction-ok` \| `extraction-warning` \| `extraction-blocked` |
 | Artifact | Grounded requirement set (with owners where known) |
-| Pass table | `PASS-003` + profile passes if run in parallel per policy |
+| Pass table | `PASS-003`, `PASS-011` + profile passes if run in parallel per policy |
 | Findings | Per `../../../shared/pass-loading-policy.md` §6 |
 | Language | Required `USER_LANGUAGE` |
 
 Do not proceed to system-mapping on `extraction-blocked` without a remediation plan in findings.
+Do not emit `extraction-ok` while `PASS-011` blocks.

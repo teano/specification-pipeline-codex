@@ -1,8 +1,8 @@
 ---
 description: >-
-  Codex invocation reference for $skill-specification-pipeline. Resolves or
-  creates the specification markdown file, then routes through the global
-  specification pipeline skill.
+  Flexible Codex invocation reference for $skill-specification-pipeline. Infers
+  create versus continue from natural language, resolves the specification file,
+  then routes through the global pipeline skill.
 ---
 
 # Codex Specification Pipeline Invocation
@@ -10,12 +10,11 @@ description: >-
 Use `$skill-specification-pipeline` as the only process root for specification
 requests.
 
-## 1. Parse Arguments Before Routing
+## 1. Resolve intent and target before routing
 
-The skill does not run router, pass, profile, or mode work until a concrete
-specification file path is resolved.
+Apply `../shared/specification-target-resolution.md`. The skill does not run router, pass, profile, or mode work until the internal operation and concrete target are resolved. Literal `new` / `continue` tokens are optional shortcuts.
 
-### 1.1 Continue An Existing Specification
+### 1.1 Optional explicit continue shortcut
 
 ```text
 $skill-specification-pipeline continue <path-to-specification.md> [-- <free-text user request>]
@@ -27,7 +26,7 @@ Rules:
 2. If the file is missing or unreadable, stop and ask the user for a valid path.
 3. Set `SPECIFICATION_DIR` to the parent directory of the resolved `SPECIFICATION_PATH`.
 
-### 1.2 Create A New Specification
+### 1.2 Optional explicit new shortcut
 
 ```text
 $skill-specification-pipeline new "<specification-title>" <parent-directory> [-- <free-text user request>]
@@ -43,12 +42,17 @@ Rules:
 6. If `SPECIFICATION_PATH` already exists, stop and tell the user to use `continue` or pick another directory/title.
 7. Create the starter body as UTF-8 without BOM and LF line endings: `# <specification-title>` plus section headings from `../shared/specification-document-regulation.md` section 5. Sections may stay empty; do not invent requirements.
 
-### 1.3 Invalid Or Incomplete Invocation
+### 1.3 Natural-language requests
 
-If the request does not start with `new` or `continue`, or required parameters
-are missing, stop and show the formats from
-`references/command-specification-help.md`. Do not route the pipeline without
-`SPECIFICATION_PATH`.
+Do not reject requests that omit `new` / `continue`:
+
+1. generate with no relevant spec → infer `new`;
+2. generate with an existing relevant spec → ask regenerate versus continue unless already explicit;
+3. dictation with a bound/unique relevant spec → infer `continue`;
+4. dictation with no spec → retain the fragment and ask for a target or permission to create one;
+5. multiple candidates or unclear action → ask one minimal clarification question.
+
+Do not route modes without a resolved target, but do not replace clarification with usage syntax alone.
 
 Optional `--` separator: everything after `--` is `USER_REQUEST`. If `--` is
 absent, treat the remainder after structured parameters as `USER_REQUEST` when
@@ -73,6 +77,8 @@ Pass these bindings into the pipeline:
 
 | Binding | Value |
 |---|---|
+| `TARGET_OPERATION` | inferred or explicit `new` / `continue` |
+| `TARGET_RESOLUTION_SOURCE` | source defined by target-resolution policy |
 | `SPECIFICATION_PATH` | resolved markdown file |
 | `SPECIFICATION_DIR` | parent directory of `SPECIFICATION_PATH` |
 | `SPECIFICATION_TITLE` | `#` title from the file, else `<specification-title>` for `new` |
@@ -81,10 +87,11 @@ Pass these bindings into the pipeline:
 
 Then:
 
-1. route via `../router/router-map.md` using `USER_REQUEST` and the spec file as context;
+1. route explicit review/proofreading via `../router/router-map.md` before the parent reads the complete specification;
 2. enforce guards from `../policies/mode-transition-guards.md`;
 3. apply shared policies, principles, and pass-loading policy;
-4. run the selected mode workflow.
+4. for review, compute the exact-byte revision hash and delegate read-only analysis to a clean-context Codex subagent through `../modes/spec-assistant/review-worker/SKILL.md`; otherwise run the selected local mode workflow;
+5. validate the returned review bundle and never apply its findings to a different specification revision.
 
 Specification edits go to `SPECIFICATION_PATH` when the routed mode allows
 writes (`spec-generator`, `spec-normalizer`, `fragment-capture`). During `new`,

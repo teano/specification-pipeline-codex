@@ -11,6 +11,8 @@ Fast findings-first quality check and explicit risks before deeper review or imp
 - `../../../review-profiles/review-light.md`
 - `../../../shared/pass-loading-policy.md` §4–§6
 - Pass files referenced by the light profile only
+- `../review-worker/SKILL.md` for parent delegation and bundle validation
+- `REVIEW_EXECUTOR_ROLE`: `parent` (default) or `worker`
 
 ## 3. Mandatory Pass Activation
 
@@ -20,11 +22,22 @@ Do not copy pass checklists into this file.
 
 ## 4. Execution Steps
 
-1. Establish comparison baseline when PASS-001 or PASS-003 is in profile scope.
-2. Run profile pass IDs in order; record status and §6 findings.
-3. On `critical` / `high` density or scope-critical gap → recommend `review-full` with same finding IDs.
-4. Keep output compact per `../../../shared/pass-loading-policy.md` §5 (findings-first, no checklist dump).
-5. For proofreading requests, focus proposed fixes on wording, terminology consistency, ambiguity, and requirement-strength preservation; keep all fixes in chat unless the user explicitly asked to apply them.
+### Parent branch (`REVIEW_EXECUTOR_ROLE=parent`)
+
+1. Do not read the complete specification or run passes in the parent context.
+2. Delegate through `../review-worker/SKILL.md` with `REVIEW_PROFILE=review-light`.
+3. Validate the returned review bundle and render it through §6.
+4. If delegation is unavailable, use the explicit local fallback from the review-worker contract.
+
+### Worker branch (`REVIEW_EXECUTOR_ROLE=worker`)
+
+1. Do not delegate again and do not write files.
+2. Establish comparison baseline when PASS-001 or PASS-003 is in profile scope.
+3. Run profile pass IDs in order; record status and §6 findings.
+4. On `critical` / `high` density or scope-critical gap → recommend `review-full` with same finding IDs.
+5. Keep output compact per `../../../shared/pass-loading-policy.md` §5 (findings-first, no checklist dump).
+6. For proofreading requests, focus proposed fixes on wording, terminology consistency, ambiguity, and requirement-strength preservation.
+7. Return the internal JSON review bundle defined and validated by `../review-worker/SKILL.md`; do not send a user-facing review directly.
 
 ## 5. Conditional Gates
 
@@ -36,6 +49,8 @@ Do not copy pass checklists into this file.
 | User asked “deep review” | Route to `review-full` |
 
 ## 6. Output Contract
+
+The worker returns only the internal review bundle. The parent localizes and renders:
 
 1. **Status:** `ok` | `warning` | `blocked`
 2. **File changes:** `none (review-only)` unless this run is explicitly followed by a separate write-approved fragment-capture step
@@ -51,6 +66,7 @@ Do not copy pass checklists into this file.
 
 1. Pass `warning`/`block` without findings → contract error; do not finalize.
 2. Light review reveals API/lifecycle/data gaps → cite PASS ID and recommend `review-full` or user decision.
+3. Worker bundle is stale/invalid → follow `../review-worker/SKILL.md` retry/contract-error rules; do not re-run the review silently in the parent unless delegation is unavailable.
 
 ## 8. When Not Applicable
 

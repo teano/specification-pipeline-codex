@@ -25,8 +25,14 @@ policies/
 
 - создание новой спецификации с канонической структурой;
 - продолжение существующего `.md` файла;
-- grounded capture новых requirements, assumptions, risks и open questions;
-- light/full review без изменения файла до явной команды применить правки;
+- немедленное grounding сущностей при надиктовывании и генерации: имена,
+  интерфейсы, создание и регистрация сверяются с проектом, а неизвестное
+  оформляется как Open Question;
+- проверка границ и когерентности систем (`PASS-011`), чтобы ответственность
+  не приписывалась несвойственной сущности и существующие системы не
+  дублировались;
+- light/full review отдельным субагентом без заполнения контекста основного
+  разговора и без изменения файла до явного согласования правок;
 - нормализация до implementation-ready вида с `REQ-*`, `AC-*`, registry,
   traceability matrix и readiness verdict;
 - жесткая граница записи: skill работает только с выбранным Markdown-файлом
@@ -111,45 +117,52 @@ git -C "%USERPROFILE%\.codex\skills\skill-specification-pipeline" pull
 
 ## Использование
 
-Создать новую спецификацию:
+Пайплайн понимает намерение из обычной речи. Команды `new`, `continue`,
+`review-light`, `review-full` и другие внутренние режимы знать не требуется.
+
+Создать новую спецификацию можно так:
 
 ```text
-$skill-specification-pipeline new "Daily rewards" .cursor/specs -- generate complete technical spec from the GDD below: ...
+Создай спецификацию Daily rewards в docs/specifications по этому GDD: ...
 ```
 
-Продолжить существующую спецификацию:
+Продолжить существующую:
 
 ```text
-$skill-specification-pipeline continue .cursor/specs/daily-rewards.md -- add fragment: daily reward can be claimed once per calendar day
+Добавь в docs/specifications/daily-rewards.md: награду можно забрать один раз в календарный день.
 ```
 
-Быстрое review:
+При надиктовывании без формальной команды пайплайн продолжит найденную
+спецификацию. Если подходящего файла нет, он предложит указать расположение или
+создать новый. Если просьба «сгенерировать» относится к уже существующему
+файлу, агент уточнит: пересоздать документ или продолжить его.
+
+Review и нормализация также формулируются свободно:
 
 ```text
-$skill-specification-pipeline continue .cursor/specs/daily-rewards.md -- quick review
+Быстро вычитай docs/specifications/daily-rewards.md.
+Проведи полную проверку спеки перед реализацией.
+Приведи спецификацию к implementation-ready виду.
 ```
 
-Полное review:
+Явный вызов skill остаётся доступен как shortcut, но запрос после него можно
+писать естественным языком:
 
 ```text
-$skill-specification-pipeline continue .cursor/specs/daily-rewards.md -- full pre-implementation review
-```
-
-Нормализация:
-
-```text
-$skill-specification-pipeline continue .cursor/specs/daily-rewards.md -- normalize into implementation-ready markdown
+$skill-specification-pipeline Создай новую спецификацию Daily rewards в docs/specifications по GDD ниже: ...
 ```
 
 ## Runtime inputs
 
-Skill не маршрутизирует запрос, пока не определены обязательные значения:
+Это внутренние bindings пайплайна, а не обязательные аргументы пользователя.
+Агент выводит их из запроса и контекста проекта; вопрос пользователю задаётся
+только когда безопасно определить значение невозможно:
 
 | Binding | Описание |
 | --- | --- |
-| `SPECIFICATION_PATH` | Путь к Markdown-файлу спецификации. Для `new` файл создается до маршрутизации. |
-| `SPECIFICATION_DIR` | Родительская папка `SPECIFICATION_PATH`; может быть создана только при `new`. |
-| `SPECIFICATION_TITLE` | Заголовок из первого `#` в документе или title из `new`. |
+| `SPECIFICATION_PATH` | Разрешённый путь к единственному Markdown-файлу спецификации. |
+| `SPECIFICATION_DIR` | Родительская папка; при создании может быть выведена из запроса или уточнена. |
+| `SPECIFICATION_TITLE` | Заголовок из документа, запроса или подтверждённого намерения создать новую спеку. |
 | `USER_LANGUAGE` | Язык пользовательского запроса и тела спецификации, например `Russian` или `English`. |
 | `USER_REQUEST` | Рабочий запрос: что нужно сделать со спецификацией. |
 
@@ -159,8 +172,11 @@ Skill не маршрутизирует запрос, пока не опреде
 | --- | --- |
 | `SKILL.md` | Главный контракт skill и runtime flow. |
 | `router/router-map.md` | Маршрутизация пользовательских запросов по режимам. |
+| `shared/specification-target-resolution.md` | Определение new/continue и безопасное разрешение целевого файла. |
 | `shared/specification-document-regulation.md` | Каноническая форма спецификации и правила документа. |
 | `shared/pass-loading-policy.md` | Какие `PASS-*` проверки запускать для каждого сценария. |
 | `review-profiles/review-light.md` | Набор проверок для быстрого review. |
 | `review-profiles/review-full.md` | Набор проверок для полного review. |
+| `shared/passes/PASS-011-system-boundary-coherence.md` | Проверка границ, ответственности и когерентности систем. |
+| `modes/spec-assistant/review-worker/SKILL.md` | Контракт изолированного review-worker. |
 | `modes/*/SKILL.md` | Контракты конкретных режимов. |

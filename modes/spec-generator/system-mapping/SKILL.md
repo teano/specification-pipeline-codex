@@ -4,7 +4,7 @@
 
 Map **subsystems, boundaries, and responsibilities** as an internal analysis step, then output a grounded subject-matter/project decomposition — so a coding agent cannot collapse everything into one God Object or mix logic with view/state.
 
-Inputs: grounded extraction output from `./grounded-extraction/SKILL.md`, regulation decomposition rules, and `../../../shared/core-principles/grounding.md`.
+Inputs: grounded extraction output from `../grounded-extraction/SKILL.md`, regulation decomposition rules, `../../../shared/core-principles/grounding.md`, and mandatory `PASS-011`.
 
 ---
 
@@ -37,6 +37,8 @@ Reuse extraction signals; at mapping stage, cluster candidates into systems:
 | External touchpoint | Integration boundary entity |
 | Variant / mode / policy | Strategy/policy owner |
 | Spatial model (grid, slots, zones) | Often needs dedicated model + view interpolation split |
+
+Before clustering, apply `PASS-011` action/capability analysis. A sentence that names one system may still contain multiple natural owners; do not use grammar as the system boundary.
 
 ---
 
@@ -175,15 +177,17 @@ Do not transplant project-structure labels or generic “manager/service/control
 
 ## 10. Stage execution steps
 
-1. Consume grounded extraction; trace each REQ to a system candidate.
-2. Apply deep-decomposition triggers (§4).
-3. Run responsibility matrix on complex flows (§6).
-4. Execute second GDD pass (§7).
-5. Apply grounding pass (§3.1) to convert the abstract system map into a project-domain object tree.
-6. Record mapping as a **hierarchical tree** in `## 4. System Decomposition` (`decomposition.md` §2.1): L0 block → one heading per grounded L1 project/domain part → grounded entities nested under that part → interaction subsections per level; optional ASCII tree at L0; external neighbors under L0 “outside boundary”, not as internal L1 after a flat entity list.
-7. For each confirmed signature-bearing item, keep the signature in the decomposition/contract entry and align all later mentions to that exact spelling/case; do not create a terminology alias row for it.
-8. Keep §2 project context high-level; move entity-specific placement/signature/composition/config/persistence details into the owning §4 entity, not a separate grounding catalog.
-9. Register unresolved owners and gaps as `OQ-xxx` in **`## 11. Open Questions` only** (per regulation §5–§7 and `decomposition.md` §5); do not scatter `TBD` or “open questions” subsections under entities in `## 4. System Decomposition`.
+1. Consume grounded extraction; trace each REQ/action/capability to a system candidate.
+2. Run `PASS-011` boundary/coherence analysis: find hidden systems, existing project owners, duplicate capability owners, and incoherent candidate responsibility sets.
+3. Apply deep-decomposition triggers (§4).
+4. Run responsibility matrix on complex flows (§6).
+5. Execute second GDD pass (§7).
+6. Apply grounding pass (§3.1) to convert the abstract system map into a project-domain object tree.
+7. Record mapping as a **hierarchical tree** in `## 4. System Decomposition` (`decomposition.md` §2.1): L0 block → one heading per grounded L1 project/domain part → grounded entities nested under that part → interaction subsections per level; optional ASCII tree at L0; external neighbors under L0 “outside boundary”, not as internal L1 after a flat entity list.
+8. Run `PASS-011` again against the assembled hierarchy, interactions, flows, and contracts. Repair hidden boundaries, incoherent systems, duplicate owners, and stale ownership before continuing.
+9. For each confirmed signature-bearing item, keep the signature in the decomposition/contract entry and align all later mentions to that exact spelling/case; do not create a terminology alias row for it.
+10. Keep §2 project context high-level; move entity-specific placement/signature/composition/config/persistence details into the owning §4 entity, not a separate grounding catalog.
+11. Register unresolved owners and gaps as `OQ-xxx` in **`## 11. Open Questions` only** (per regulation §5–§7 and `decomposition.md` §5); do not scatter `TBD` or “open questions” subsections under entities in `## 4. System Decomposition`.
 
 ---
 
@@ -196,6 +200,9 @@ Do not transplant project-structure labels or generic “manager/service/control
 - No separate grounding catalog duplicates the §4 decomposition entries.
 - Cross-cutting concerns (save, config, analytics) attributed when in scope.
 - External dependencies named at boundary level only.
+- Every affected system has a cohesive responsibility set and one grounded capability boundary.
+- No existing project capability owner is duplicated or bypassed by a newly invented system.
+- No hidden multi-system statement remains collapsed into one hierarchy node.
 
 ---
 
@@ -206,4 +213,7 @@ Do not transplant project-structure labels or generic “manager/service/control
 | Stage status | `mapping-ok` \| `mapping-warning` \| `mapping-blocked` |
 | Deliverable | Grounded hierarchical decomposition (tree-shaped §4) + optional responsibility matrix |
 | Findings | Gaps, God Object risks, ownership conflicts |
+| Pass status | `PASS-011` after final hierarchy verification |
 | Language | Required `USER_LANGUAGE` |
+
+`mapping-ok` is forbidden while `PASS-011` blocks.
