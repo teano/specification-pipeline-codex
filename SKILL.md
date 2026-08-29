@@ -170,6 +170,15 @@ Hard rules:
 14. For generation, infer `new` when no relevant spec exists. If a relevant spec exists and rewrite versus continuation is unstated, ask before writing; never overwrite silently.
 15. For dictation, reuse the current conversation-bound or unique relevant spec. If none exists, preserve the fragment and ask for a path or new-spec confirmation; do not require repetition.
 
+### GameDev helper request
+
+When the caller supplies `GAMEDEV_HELPER_REQUEST_PATH`, read
+[`references/gamedev-helper-sidecar.md`](references/gamedev-helper-sidecar.md)
+before the selected write-capable mode. This is the sole exception that permits
+the helper-owned report, coverage, and result-sidecar paths named by a valid
+request in addition to `SPECIFICATION_PATH`. It does not change mode routing,
+stage/pass execution, pass applicability, or semantic findings.
+
 ## 6. Package Layout
 
 Use only this skill package as the process root:

@@ -20,6 +20,7 @@ Before any generation or rebuild:
 1. Load `../../shared/specification-document-regulation.md` and follow it for document shape, terminology, decomposition, flows, diagrams, and open questions.
 2. Load `../../shared/core-principles/system-thinking.md`, `../../shared/core-principles/decomposition.md`, and `../../shared/core-principles/grounding.md`.
 3. Load `../../shared/source-priority-policy.md`, `../../shared/pass-loading-policy.md`, and `../../policies/mode-transition-guards.md`.
+4. When `GAMEDEV_HELPER_REQUEST_PATH` is present, apply `../../references/gamedev-helper-sidecar.md` before writing and emit its helper-owned result only after this mode passes.
 
 **Precedence:** regulation wins on document format; this mode wins on GDD→requirements transformation logic. Unresolvable conflicts → report as a finding; do not guess.
 

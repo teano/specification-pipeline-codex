@@ -78,7 +78,7 @@ Per `../../../shared/specification-document-regulation.md` §7:
 
 ## 6. Execution Steps
 
-1. Load `../../../shared/source-priority-policy.md` and fragment scope.
+1. Load `../../../shared/source-priority-policy.md` and fragment scope. When `GAMEDEV_HELPER_REQUEST_PATH` is present, also apply `../../../references/gamedev-helper-sidecar.md` before writing and emit its helper-owned result only after this submode passes.
 2. Map affected canonical sections and identify every action/capability and introduced/changed implementation entity.
 3. Run `PASS-011` pre-write analysis. Detect hidden boundaries, search existing project capability owners, and decide the hierarchy/interaction impact before accepting the user's grammatical subject as owner.
 4. Run the immediate grounding gate. Inspect project rules and analogous authored entities; resolve the concrete artifact contract or create `OQ-xxx` and omit the abstract/misowned entity.
