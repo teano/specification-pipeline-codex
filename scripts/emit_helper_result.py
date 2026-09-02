@@ -8,6 +8,7 @@ import hashlib
 import json
 import os
 import re
+import subprocess
 import sys
 from pathlib import Path
 from typing import Any
@@ -15,6 +16,7 @@ from typing import Any
 
 REQUEST_SCHEMA = 1
 RESULT_SCHEMA = 1
+PREFLIGHT_SCHEMA = 1
 REQUEST_KEYS = {
     "schema",
     "request_id",
@@ -27,6 +29,7 @@ REQUEST_KEYS = {
     "allowed_write_paths",
     "artifacts",
     "helper_identity",
+    "controller",
     "correction_ids",
 }
 ROUTE_KEYS = {"mode", "submode", "target_operation"}
@@ -41,6 +44,16 @@ IDENTITY_KEYS = {
     "result_emitter_path",
     "result_emitter_sha256",
 }
+CONTROLLER_KEYS = {"path", "sha256"}
+PREFLIGHT_KEYS = {
+    "schema",
+    "controller",
+    "request",
+    "output_specification",
+}
+PREFLIGHT_CONTROLLER_KEYS = {"path", "sha256"}
+PREFLIGHT_REQUEST_KEYS = {"id", "sha256"}
+PREFLIGHT_OUTPUT_KEYS = {"path", "sha256"}
 
 
 class EmitterError(RuntimeError):
@@ -196,6 +209,17 @@ def validate_request(request_path: Path) -> tuple[bytes, dict[str, Any], dict[st
     if identity != expected_identity:
         raise EmitterError("helper request external identity fingerprint is stale or foreign")
 
+    controller = request.get("controller")
+    if (
+        not isinstance(controller, dict)
+        or set(controller) != CONTROLLER_KEYS
+        or not isinstance(controller.get("path"), str)
+        or not Path(controller["path"]).is_absolute()
+        or str(Path(controller["path"]).resolve()) != controller["path"]
+        or not exact_sha(controller.get("sha256"))
+    ):
+        raise EmitterError("helper request controller binding is invalid")
+
     if not spec_path.is_file():
         raise EmitterError("helper output specification does not exist")
     output_sha = sha256(spec_path)
@@ -216,8 +240,95 @@ def validate_request(request_path: Path) -> tuple[bytes, dict[str, Any], dict[st
     }
 
 
-def emit(request_path: Path) -> Path:
+def preflight_helper_output(
+    controller_path: Path,
+    request_path: Path,
+    request_bytes: bytes,
+    request: dict[str, Any],
+    paths: dict[str, Path],
+) -> tuple[Path, dict[str, Any]]:
+    controller = controller_path.resolve()
+    if not controller.is_file():
+        raise EmitterError("GameDev specification controller does not exist")
+    controller_sha = sha256(controller)
+    if request["controller"] != {
+        "path": str(controller),
+        "sha256": controller_sha,
+    }:
+        raise EmitterError(
+            "GameDev specification controller does not match the helper request binding"
+        )
+    command = [
+        sys.executable,
+        "-B",
+        str(controller),
+        "--project-root",
+        request["project_root"],
+        "preflight-helper-output",
+        "--request",
+        str(request_path.resolve()),
+    ]
+    try:
+        completed = subprocess.run(
+            command,
+            stdin=subprocess.DEVNULL,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            check=False,
+            shell=False,
+        )
+    except OSError as error:
+        raise EmitterError("GameDev controller preflight could not run") from error
+    if completed.returncode != 0:
+        raise EmitterError("GameDev controller preflight rejected helper output")
+    try:
+        envelope = json.loads(completed.stdout.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as error:
+        raise EmitterError(
+            "GameDev controller preflight must return one UTF-8 JSON object"
+        ) from error
+    if (
+        not isinstance(envelope, dict)
+        or set(envelope) != PREFLIGHT_KEYS
+        or type(envelope.get("schema")) is not int
+        or envelope["schema"] != PREFLIGHT_SCHEMA
+        or not isinstance(envelope.get("controller"), dict)
+        or set(envelope["controller"]) != PREFLIGHT_CONTROLLER_KEYS
+        or not isinstance(envelope.get("request"), dict)
+        or set(envelope["request"]) != PREFLIGHT_REQUEST_KEYS
+        or not isinstance(envelope.get("output_specification"), dict)
+        or set(envelope["output_specification"]) != PREFLIGHT_OUTPUT_KEYS
+    ):
+        raise EmitterError("GameDev controller preflight envelope schema is invalid")
+    expected = {
+        "schema": PREFLIGHT_SCHEMA,
+        "controller": {
+            "path": str(controller),
+            "sha256": controller_sha,
+        },
+        "request": {
+            "id": request["request_id"],
+            "sha256": hashlib.sha256(request_bytes).hexdigest(),
+        },
+        "output_specification": {
+            "path": request["specification"]["path"],
+            "sha256": sha256(paths["specification"]),
+        },
+    }
+    if envelope != expected:
+        raise EmitterError("GameDev controller preflight binding is stale or foreign")
+    return controller, envelope
+
+
+def emit(request_path: Path, controller_path: Path) -> Path:
     request_bytes, request, paths = validate_request(request_path.resolve())
+    controller, preflight = preflight_helper_output(
+        controller_path,
+        request_path,
+        request_bytes,
+        request,
+        paths,
+    )
     artifacts = request["artifacts"]
     result = {
         "schema": RESULT_SCHEMA,
@@ -229,7 +340,7 @@ def emit(request_path: Path) -> Path:
         "route": request["route"],
         "output_specification": {
             "path": request["specification"]["path"],
-            "sha256": sha256(paths["specification"]),
+            "sha256": preflight["output_specification"]["sha256"],
         },
         "outcome": "PASS",
         "write_paths": request["allowed_write_paths"],
@@ -256,6 +367,14 @@ def emit(request_path: Path) -> Path:
         "utf-8"
     )
     try:
+        if sha256(controller) != preflight["controller"]["sha256"]:
+            raise EmitterError("GameDev specification controller changed after preflight")
+        if hashlib.sha256(request_path.resolve().read_bytes()).hexdigest() != preflight[
+            "request"
+        ]["sha256"]:
+            raise EmitterError("helper request changed after controller preflight")
+        if sha256(paths["specification"]) != preflight["output_specification"]["sha256"]:
+            raise EmitterError("helper output specification changed after controller preflight")
         with temporary.open("xb") as stream:
             stream.write(payload)
             stream.flush()
@@ -271,11 +390,12 @@ def emit(request_path: Path) -> Path:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--controller", required=True)
     parser.add_argument("--request", required=True)
     args = parser.parse_args(argv)
     try:
-        result = emit(Path(args.request))
-    except EmitterError as error:
+        result = emit(Path(args.request), Path(args.controller))
+    except (OSError, EmitterError) as error:
         print(f"error: {error}", file=sys.stderr)
         return 2
     print(str(result))

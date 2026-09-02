@@ -151,6 +151,8 @@ Rules:
 | `SPECIFICATION_TITLE` | first `#` title from the file, else the `new` title |
 | `USER_REQUEST` | text after `--` or trailing free-text work intent |
 | `USER_LANGUAGE` | detected user language |
+| `GAMEDEV_HELPER_REQUEST_PATH` | controller-issued immutable request; required only for a GameDev helper run |
+| `GAMEDEV_SPECIFICATION_CONTROLLER_PATH` | exact resolved GameDev specification controller entrypoint; required with `GAMEDEV_HELPER_REQUEST_PATH`, must match that request's path/SHA binding, and is never inferred by this skill |
 
 Hard rules:
 
@@ -172,12 +174,17 @@ Hard rules:
 
 ### GameDev helper request
 
-When the caller supplies `GAMEDEV_HELPER_REQUEST_PATH`, read
+When the caller supplies `GAMEDEV_HELPER_REQUEST_PATH`, require the paired
+`GAMEDEV_SPECIFICATION_CONTROLLER_PATH` to match the request's exact resolved
+controller path and SHA-256 binding and read
 [`references/gamedev-helper-sidecar.md`](references/gamedev-helper-sidecar.md)
 before the selected write-capable mode. This is the sole exception that permits
 the helper-owned report, coverage, and result-sidecar paths named by a valid
 request in addition to `SPECIFICATION_PATH`. It does not change mode routing,
-stage/pass execution, pass applicability, or semantic findings.
+stage/pass execution, pass applicability, or semantic findings. The controller
+binding is used only for the mandatory read-only output preflight that must pass
+before the immutable PASS result sidecar is created. The emitter rejects a
+missing or mismatched request binding before launching any controller.
 
 ## 6. Package Layout
 
