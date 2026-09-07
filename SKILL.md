@@ -32,6 +32,22 @@ Own the full specification workflow in Codex:
 This is the Codex-global variant of the Cursor command + skill package. Do not
 invoke Cursor slash commands. Treat this skill folder as the process root.
 
+### Executor model policy
+
+The default model for semantic specification work is `gpt-6-astra` with
+`reasoning_effort="low"`: parent orchestration, assistant fragment capture,
+generation, normalization, and isolated review/proofreading/post-fix verification.
+A scoped explicit user choice takes precedence, followed by an explicit caller
+dispatch choice when it does not conflict with that user choice.
+These defaults do not create additional roles or change mode routing.
+
+For the existing parent executor, this is a task-start configuration recommendation.
+Skill prose cannot change the model of an already running task; continue its local
+mode on the actual configured executor and do not claim that it switched models.
+For new review workers, apply the selected pair in the actual spawn fields through
+`modes/spec-assistant/review-worker/SKILL.md`. Reuse an existing worker for the
+already-defined retry; never replace it solely to apply a model default.
+
 ## 2. Flexible invocation
 
 Accept natural-language requests as the default interface. Infer the internal operation and target through `shared/specification-target-resolution.md`.

@@ -18,8 +18,8 @@ Never put the specification body or full conversation history in the worker task
 
 1. Resolve the explicit review route without reading the complete specification.
 2. Verify `SPECIFICATION_PATH` readability. Compute lowercase `EXPECTED_REVISION_SHA256` from its exact bytes with a read-only operation.
-3. Spawn one fresh Codex subagent through the available multi-agent mechanism with no inherited conversation history (`fork_turns="none"` or the platform-equivalent clean-context option). Use a unique bounded task name.
-4. Give it only the absolute pipeline `SKILL.md` path, `REVIEW_EXECUTOR_ROLE=worker`, §2 bindings, and `EXPECTED_REVISION_SHA256`. Tell it to execute §4 and return exactly the §5 JSON. Do not provide expected findings or parent conclusions.
+3. Spawn one fresh Codex subagent through `collaboration.spawn_agent` with actual fields `model="gpt-6-astra"`, `reasoning_effort="low"`, and `fork_turns="none"`. A scoped explicit user choice takes precedence, followed by an explicit caller dispatch choice when it does not conflict with that user choice; pass that choice in the actual spawn fields and concise worker task. Use a unique bounded task name. If another supported multi-agent mechanism is used, use its real equivalent model, effort, and clean-context controls; task prose alone does not configure a model. If it cannot honor the selected pair, report the limitation rather than silently substituting another model.
+4. Give it only the absolute pipeline `SKILL.md` path, `REVIEW_EXECUTOR_ROLE=worker`, §2 bindings, the selected model/effort choice, and `EXPECTED_REVISION_SHA256`. Tell it to execute §4 and return exactly the §5 JSON. Do not provide expected findings or parent conclusions.
 5. Wait for one review bundle. Do not execute the selected passes in the parent.
 6. Validate the bundle per §6 and recompute the current specification hash before presenting findings.
 
@@ -94,7 +94,7 @@ Accept ordinary version `1.0` only with exact path/profile; hash equal to dispat
 
 Treat `stale-review` as valid only with empty `pass_results`, findings, and fixes. Recompute hash and retry once. On a second concurrent change, stop and report that the document is changing.
 
-For invalid JSON/schema, send only validation errors and original bindings to the same isolated subagent through a follow-up task, once. Do not paste the document. If still invalid, return a contract-error finding. This is a second turn of the same worker, not another parallel reviewer.
+For invalid JSON/schema, send only validation errors and original bindings to the same isolated subagent through a follow-up task, once. Do not paste the document. If still invalid, return a contract-error finding. This is a second turn of the same worker, not another parallel reviewer. Use `collaboration.followup_task` on the same worker; preserve its actual model/effort and identity instead of spawning a replacement to apply a default.
 
 ## 7. Parent response
 
@@ -109,7 +109,7 @@ Do not expose JSON unless requested. Keep bundle/hash only in conversation state
 3. If it differs, do not apply stale fixes; delegate a new review.
 4. If unchanged, route through `../fragment-capture/SKILL.md`; the parent is the only writer.
 5. Apply selected fixes as one coherent operation with affected sections and mandatory fragment passes.
-6. Delegate post-fix verification to a fresh isolated review subagent with new hash, finding IDs, affected sections, and the same profile. Narrow `REVIEW_SCOPE` if useful, but never downgrade `review-full`.
+6. Delegate post-fix verification through the §3 dispatch protocol to a fresh isolated review subagent with new hash, finding IDs, affected sections, and the same profile. Narrow `REVIEW_SCOPE` if useful, but never downgrade `review-full`.
 7. Report findings closed, remaining, or changed ID.
 
 ## 9. Availability fallback
