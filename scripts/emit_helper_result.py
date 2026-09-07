@@ -112,8 +112,18 @@ def validate_request(request_path: Path) -> tuple[bytes, dict[str, Any], dict[st
         request_relative = request_path.resolve().relative_to(root).as_posix()
     except ValueError as error:
         raise EmitterError("helper request must be inside the project root") from error
-    if request_relative != f".agentic-pipeline/helper-requests/{request_id}.json":
+    request_parts = Path(request_relative).parts
+    if (
+        len(request_parts) != 5
+        or request_parts[0] != ".agentic-pipeline"
+        or request_parts[1] != "Workflows"
+        or re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", request_parts[2]) is None
+        or request_parts[3] != "helper-requests"
+        or request_parts[4] != f"{request_id}.json"
+    ):
         raise EmitterError("helper request path is non-canonical")
+    feature = request_parts[2]
+    workflow_relative = f".agentic-pipeline/Workflows/{feature}"
 
     route = request.get("route")
     if not isinstance(route, dict) or set(route) != ROUTE_KEYS:
@@ -181,6 +191,13 @@ def validate_request(request_path: Path) -> tuple[bytes, dict[str, Any], dict[st
     artifact_paths = request.get("artifacts")
     if not isinstance(artifact_paths, dict) or set(artifact_paths) != ARTIFACT_PATH_KEYS:
         raise EmitterError("helper request artifact paths are invalid")
+    artifact_base = f"{workflow_relative}/helper-results/{request_id}"
+    if artifact_paths != {
+        "helper_report_path": f"{artifact_base}.report.md",
+        "coverage_path": f"{artifact_base}.coverage.json",
+        "result_path": f"{artifact_base}.result.json",
+    }:
+        raise EmitterError("helper request artifact paths are non-canonical")
     report_path = project_path(root, artifact_paths["helper_report_path"], "helper report path")
     coverage_path = project_path(root, artifact_paths["coverage_path"], "coverage path")
     result_path = project_path(root, artifact_paths["result_path"], "result path")
@@ -233,6 +250,7 @@ def validate_request(request_path: Path) -> tuple[bytes, dict[str, Any], dict[st
 
     return request_bytes, request, {
         "root": root,
+        "workflow": root / workflow_relative,
         "specification": spec_path,
         "report": report_path,
         "coverage": coverage_path,
@@ -264,6 +282,8 @@ def preflight_helper_output(
         str(controller),
         "--project-root",
         request["project_root"],
+        "--feature",
+        paths["workflow"].name,
         "preflight-helper-output",
         "--request",
         str(request_path.resolve()),

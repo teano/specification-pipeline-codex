@@ -11,6 +11,9 @@ change routing, stages, passes, findings, or `not applicable` policy.
 ## Before the mode runs
 
 1. Read the request as immutable input. Do not create or normalize it.
+   Require its canonical location at
+   `.agentic-pipeline/Workflows/<feature>/helper-requests/<request-id>.json`;
+   that path is the sole source of the feature selector used for preflight.
 2. Verify and retain the paired `GAMEDEV_SPECIFICATION_CONTROLLER_PATH` exact
    resolved path/SHA binding for the post-mode preflight. Do not execute the
    controller during semantic work.
@@ -47,6 +50,7 @@ a shell, that exact controller as:
 ```text
 python -B <GAMEDEV_SPECIFICATION_CONTROLLER_PATH> \
   --project-root <project_root from GAMEDEV_HELPER_REQUEST_PATH> \
+  --feature <feature from the canonical GAMEDEV_HELPER_REQUEST_PATH> \
   preflight-helper-output \
   --request <GAMEDEV_HELPER_REQUEST_PATH>
 ```

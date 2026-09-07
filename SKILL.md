@@ -151,7 +151,7 @@ Rules:
 | `SPECIFICATION_TITLE` | first `#` title from the file, else the `new` title |
 | `USER_REQUEST` | text after `--` or trailing free-text work intent |
 | `USER_LANGUAGE` | detected user language |
-| `GAMEDEV_HELPER_REQUEST_PATH` | controller-issued immutable request; required only for a GameDev helper run |
+| `GAMEDEV_HELPER_REQUEST_PATH` | controller-issued immutable request under `.agentic-pipeline/Workflows/<feature>/helper-requests/`; required only for a GameDev helper run |
 | `GAMEDEV_SPECIFICATION_CONTROLLER_PATH` | exact resolved GameDev specification controller entrypoint; required with `GAMEDEV_HELPER_REQUEST_PATH`, must match that request's path/SHA binding, and is never inferred by this skill |
 
 Hard rules:
