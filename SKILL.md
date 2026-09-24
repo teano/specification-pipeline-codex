@@ -34,9 +34,10 @@ invoke Cursor slash commands. Treat this skill folder as the process root.
 
 ### Executor model policy
 
-The default model for semantic specification work is `gpt-6-astra` with
-`reasoning_effort="low"`: parent orchestration, assistant fragment capture,
-generation, normalization, and isolated review/proofreading/post-fix verification.
+The default model for semantic specification work is `gpt-6-sol`. Use
+`reasoning_effort="low"` for parent orchestration and assistant fragment capture.
+Use `reasoning_effort="high"` for complete-document generation, normalization,
+and isolated semantic review/proofreading/post-fix verification.
 A scoped explicit user choice takes precedence, followed by an explicit caller
 dispatch choice when it does not conflict with that user choice.
 These defaults do not create additional roles or change mode routing.
